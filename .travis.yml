@@ -1,0 +1,21 @@
+#sudo: required
+language: go
+go: '1.10'
+install:
+  - make setup
+script:
+  - make ci
+after_success:
+  - make embed-assets
+  - bash <(curl -s https://codecov.io/bash)
+notifications:
+  email: false
+deploy:
+  - provider: script
+    skip_cleanup: true
+    script: curl -sL http://git.io/goreleaser | bash
+    on:
+      tags: true
+env:
+  global:
+  - secure: kY0KPk2/p3iJWxhdXZAL9TIGSr5aEqenxDIXXK6x7MO3JDyUYjOWq//x8s06qwrw9K/NHTJs7wZqPoGj/hHG89cWCHkeNMJc6IfGwlKtwV1R9qlNSzmHYaNRlJErqF60RtEFeVt9VubqEZ2uCLrp1jlbtKb1peGZiGIjbtgtjcbnEVRwUI9byNKp3iIYKt0gLP8opaAzEb/vdCiMPm1sKhK/gpi8KgO77z1KJ4sQtBQ7vh9/t9i9jz+uJ2A9WPF69ErNZrzsaQ+6Xy1pE1NKakl6mIXnMugbYbdg6L5zKCMb/r8CXRWBBiKcSmBQ8rXdCG+DS6ojX4/+gHW3w6T5oLr8ZhbNKGZL5JtLiot7Qp8vnfREqDPrOXOhMSjOt//GtLu/QtzOfppic2ttJDSV8EIiSLMOpuz/dAbGLaA+WANTqgXUn0D0PzKEzcNUbf5uEibj3uJ3wP0q6o4DW/PMYSVzoOrKKn6I3VVrTOHWmjAhOrLmgARzmfE0YkjRctp/Hnk2Pwq+CT8gG2lpOhsRl9fghm6GWddiVVqSmYO535pih12HfjTjdcczw9vcQykQ4Xy3vH46XK/nwO5i6ZzYjDsuuIKaMQzcb5FRb6GpQpB9exM7n4z+N99fodwz52HU9Mi1AeQAJj3Jtp8ikAeEypAogilecRjlDI+MCaNribI=

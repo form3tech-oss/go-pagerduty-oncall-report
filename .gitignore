@@ -1,0 +1,7 @@
+vendor/
+dist/
+bin/
+coverage.out
+rice-box.go
+pd-report
+.pd-report-config.yml

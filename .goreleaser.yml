@@ -1,0 +1,35 @@
+project_name: pd-report
+
+builds:
+  - main: ./main.go
+    binary: pd-report
+    goarch:
+      - amd64
+    goos:
+      - windows
+      - darwin
+      - linux
+    env:
+      - CGO_ENABLED=0
+
+archive:
+  format: tar.gz
+  files:
+    - LICENSE
+
+brew:
+  name: pd-report
+  github:
+    owner: rogersole
+    name: homebrew-tap
+  folder: Formula
+  commit_author:
+    name: rogersole
+    email: roger.sole@gmail.com
+
+  homepage: "https://github.com/rogersole/go-pagerduty-oncall-report/"
+  description: "Get a report of oncall rotations from your PagerDuty account"
+
+git:
+  short_hash: true
+

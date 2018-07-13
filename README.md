@@ -35,20 +35,20 @@ Flags:
 Use "pd-report [command] --help" for more information about a command.
 ```
 
-And `report` specific flags:
+- And `report` specific flags:
 
-```bash
-Usage:
-  pd-report report [flags]
+  ```bash
+  Usage:
+    pd-report report [flags]
 
-Flags:
-  -h, --help                   help for report
-  -o, --output-format string   pdf, console (default "console")
-  -s, --schedules strings      schedule ids to report (comma-separated with no spaces), or 'all' (default [all])
+  Flags:
+    -h, --help                   help for report
+    -o, --output-format string   pdf, console (default "console")
+    -s, --schedules strings      schedule ids to report (comma-separated with no spaces), or 'all' (default [all])
 
-Global Flags:
-      --config string   configuration file (default is ~/.pd-report-config.yml)
-```
+  Global Flags:
+        --config string   configuration file (default is ~/.pd-report-config.yml)
+  ```
 
 ## Configuration
 

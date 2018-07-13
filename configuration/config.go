@@ -34,19 +34,19 @@ func New() *Configuration {
 	}
 }
 
-func (c *Configuration) FindPriceByDay(dayType string) (int, error) {
+func (c *Configuration) FindPriceByDay(dayType string) (*int, error) {
 	if price, ok := c.cacheRotationPrices[dayType]; ok {
-		return price, nil
+		return &price, nil
 	}
 
 	for _, rotationPrice := range c.RotationPrices {
 		if rotationPrice.Type == dayType {
 			c.cacheRotationPrices[rotationPrice.Type] = rotationPrice.Price
-			return rotationPrice.Price, nil
+			return &rotationPrice.Price, nil
 		}
 	}
 
-	return 0, fmt.Errorf("day type %s not found", dayType)
+	return nil, fmt.Errorf("day type %s not found", dayType)
 }
 
 func (c *Configuration) FindRotationUserInfoByID(userID string) (*RotationUser, error) {

@@ -66,10 +66,12 @@ todo:
 	@grep \
 		--exclude-dir=vendor \
 		--exclude-dir=node_modules \
+		--exclude-dir=.idea \
+		--exclude-dir=bin \
 		--exclude=Makefile \
 		--text \
 		--color \
-		-nRo -E ' TODO:.*|SkipNow' .
+		-nRo -E 'TODO' .
 .PHONY: todo
 
 

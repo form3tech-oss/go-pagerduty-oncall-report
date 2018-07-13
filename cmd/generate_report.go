@@ -230,9 +230,9 @@ func generateScheduleData(scheduleInfo *api.ScheduleInfo, usersRotationData api.
 			}
 		}
 
-		scheduleUserData.TotalAmountWorkDays = scheduleUserData.NumWorkDays * weekDayPrice
-		scheduleUserData.TotalAmountWeekendDays = scheduleUserData.NumWeekendDays * weekendDayPrice
-		scheduleUserData.TotalAmountBankHolidaysDays = scheduleUserData.NumBankHolidaysDays * bhDayPrice
+		scheduleUserData.TotalAmountWorkDays = scheduleUserData.NumWorkDays * *weekDayPrice
+		scheduleUserData.TotalAmountWeekendDays = scheduleUserData.NumWeekendDays * *weekendDayPrice
+		scheduleUserData.TotalAmountBankHolidaysDays = scheduleUserData.NumBankHolidaysDays * *bhDayPrice
 		scheduleUserData.TotalAmount = scheduleUserData.TotalAmountWorkDays +
 			scheduleUserData.TotalAmountWeekendDays +
 			scheduleUserData.TotalAmountBankHolidaysDays

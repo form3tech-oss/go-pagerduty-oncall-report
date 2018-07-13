@@ -29,7 +29,7 @@ Available Commands:
   users       list users on PagerDuty
 
 Flags:
-      --config string   configuration file (default is $HOME/.pd-report-config.yml)
+      --config string   configuration file (default is ~/.pd-report-config.yml)
   -h, --help            help for pd-report
 
 Use "pd-report [command] --help" for more information about a command.

@@ -70,11 +70,3 @@ func TestConfigurationMalformed(t *testing.T) {
 	then.
 		Config_error_is_created()
 }
-
-func TestConfigurationNotFound(t *testing.T) {
-	// TODO
-}
-
-func TestConfigurationWithOnlySomeValues(t *testing.T) {
-	// TODO
-}

@@ -10,63 +10,63 @@ func TestFindExistingPriceByDay(t *testing.T) {
 	given, when, then := stages.ConfigTest(t)
 
 	given.
-		A_valid_configuration_correctly_loaded()
+		AValidConfigurationCorrectlyLoaded()
 
 	when.
-		An_existing_price_is_requested()
+		AnExistingPriceIsRequested()
 
 	then.
-		Value_is_found()
+		ValueIsFound()
 }
 
 func TestFindNonExistingPriceByDay(t *testing.T) {
 	given, when, then := stages.ConfigTest(t)
 
 	given.
-		A_valid_configuration_correctly_loaded()
+		AValidConfigurationCorrectlyLoaded()
 
 	when.
-		A_non_existing_price_is_requested()
+		ANonExistingPriceIsRequested()
 
 	then.
-		Value_is_not_found()
+		ValueIsNotFound()
 }
 
 func TestFindExistingRotationUserInfoById(t *testing.T) {
 	given, when, then := stages.ConfigTest(t)
 
 	given.
-		A_valid_configuration_correctly_loaded()
+		AValidConfigurationCorrectlyLoaded()
 
 	when.
-		An_existing_rotation_info_is_requested()
+		AnExistingRotationInfoIsRequested()
 
 	then.
-		Value_is_found()
+		ValueIsFound()
 }
 
 func TestFindNonExistingRotationUserInfoById(t *testing.T) {
 	given, when, then := stages.ConfigTest(t)
 
 	given.
-		A_valid_configuration_correctly_loaded()
+		AValidConfigurationCorrectlyLoaded()
 
 	when.
-		A_non_existing_rotation_info_is_requested()
+		ANonExistingRotationInfoIsRequested()
 
 	then.
-		Value_is_not_found()
+		ValueIsNotFound()
 }
 
 func TestConfigurationMalformed(t *testing.T) {
 	given, when, then := stages.ConfigTest(t)
 
 	given.
-		A_malformed_configuration()
+		AMalformedConfiguration()
 
 	when.
-		It_is_loaded()
+		ItIsLoaded()
 
 	then.
-		Config_error_is_created()
+		ConfigErrorIsCreated()
 }

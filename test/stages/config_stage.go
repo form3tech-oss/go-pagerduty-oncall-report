@@ -34,7 +34,7 @@ func (s *ConfigStage) And() *ConfigStage {
 	return s
 }
 
-func (s *ConfigStage) A_valid_configuration() *ConfigStage {
+func (s *ConfigStage) AValidConfiguration() *ConfigStage {
 	s.configRaw = []byte(`
 pdAuthToken: abcdefghijklm
 rotationStartHour: 08:00:00
@@ -61,7 +61,7 @@ schedulesToIgnore:
 	return s
 }
 
-func (s *ConfigStage) A_malformed_configuration() *ConfigStage {
+func (s *ConfigStage) AMalformedConfiguration() *ConfigStage {
 	s.configRaw = []byte(`
 pdAuthToken: abcdefghijklm
 	rotationStartHour: 08:00:00
@@ -84,13 +84,13 @@ pdAuthToken: abcdefghijklm
 	return s
 }
 
-func (s *ConfigStage) A_valid_configuration_correctly_loaded() *ConfigStage {
-	s.A_valid_configuration().And().It_is_loaded()
+func (s *ConfigStage) AValidConfigurationCorrectlyLoaded() *ConfigStage {
+	s.AValidConfiguration().And().ItIsLoaded()
 	assert.Nil(s.t, s.configError)
 	return s
 }
 
-func (s *ConfigStage) It_is_loaded() *ConfigStage {
+func (s *ConfigStage) ItIsLoaded() *ConfigStage {
 	viper.SetConfigType("yaml")
 	s.configError = viper.ReadConfig(bytes.NewBuffer(s.configRaw))
 	if s.configError == nil {
@@ -100,38 +100,38 @@ func (s *ConfigStage) It_is_loaded() *ConfigStage {
 	return s
 }
 
-func (s *ConfigStage) An_existing_price_is_requested() *ConfigStage {
+func (s *ConfigStage) AnExistingPriceIsRequested() *ConfigStage {
 	s.mapValue, s.mapError = s.config.FindPriceByDay("weekday")
 	return s
 }
 
-func (s *ConfigStage) A_non_existing_price_is_requested() *ConfigStage {
+func (s *ConfigStage) ANonExistingPriceIsRequested() *ConfigStage {
 	s.mapValue, s.mapError = s.config.FindPriceByDay("wokday")
 	return s
 }
 
-func (s *ConfigStage) An_existing_rotation_info_is_requested() *ConfigStage {
+func (s *ConfigStage) AnExistingRotationInfoIsRequested() *ConfigStage {
 	s.mapValue, s.mapError = s.config.FindRotationUserInfoByID("ABCDEF1")
 	return s
 }
 
-func (s *ConfigStage) A_non_existing_rotation_info_is_requested() *ConfigStage {
+func (s *ConfigStage) ANonExistingRotationInfoIsRequested() *ConfigStage {
 	s.mapValue, s.mapError = s.config.FindRotationUserInfoByID("NONE")
 	return s
 }
 
-func (s *ConfigStage) Value_is_found() *ConfigStage {
+func (s *ConfigStage) ValueIsFound() *ConfigStage {
 	assert.Nil(s.t, s.mapError)
 	assert.NotNil(s.t, s.mapValue)
 	return s
 }
 
-func (s *ConfigStage) Value_is_not_found() *ConfigStage {
+func (s *ConfigStage) ValueIsNotFound() *ConfigStage {
 	assert.NotNil(s.t, s.mapError)
 	assert.Nil(s.t, s.mapValue)
 	return s
 }
-func (s *ConfigStage) Config_error_is_created() *ConfigStage {
+func (s *ConfigStage) ConfigErrorIsCreated() *ConfigStage {
 	assert.NotNil(s.t, s.configError)
 	return s
 }

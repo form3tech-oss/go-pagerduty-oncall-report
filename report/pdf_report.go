@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	matrixRowFormat = "%-24s %8v %8v %11v %10v %10v %13v %8v"
+	matrixRowFormat = "%-23s %8v %8v %11v %10v %10v %13v %9v"
 )
 
 type pdfReport struct {
@@ -52,9 +52,11 @@ func (r *pdfReport) GenerateReport(data *PrintableData) (string, error) {
 
 		pdf.SetFont("Courier", "B", 9)
 		pdf.CellFormat(0, 5,
-			fmt.Sprintf(matrixRowFormat, "USER", "WEEKDAY", "WEEKEND", "B. HOLIDAY", tr(fmt.Sprintf("%s WEEKDAY", r.currency)),
-				tr(fmt.Sprintf("%s WEEKEND", r.currency)), tr(fmt.Sprintf("%s B. HOLIDAY", r.currency)),
-				tr(fmt.Sprintf("%s TOTAL", r.currency))),
+			fmt.Sprintf(matrixRowFormat, "USER", "WEEKDAY", "WEEKEND", "B. HOLIDAY", "WEEKDAY", "WEEKEND", "B. HOLIDAY", "TOTAL"),
+			"", 0, "L", false, 0, "")
+		pdf.Ln(3)
+		pdf.CellFormat(0, 5,
+			fmt.Sprintf(matrixRowFormat, "", "HOURS", "HOURS", "HOURS", "AMOUNT", "AMOUNT", "AMOUNT", "AMOUNT"),
 			"B", 0, "L", false, 0, "")
 		pdf.Ln(5)
 
@@ -62,14 +64,46 @@ func (r *pdfReport) GenerateReport(data *PrintableData) (string, error) {
 		for _, userData := range scheduleData.RotaUsers {
 			pdf.CellFormat(0, 5,
 				fmt.Sprintf(matrixRowFormat, tr(userData.Name),
-					userData.NumWorkDays, userData.NumWeekendDays, userData.NumBankHolidaysDays,
-					userData.TotalAmountWorkDays, userData.TotalAmountWeekendDays, userData.TotalAmountBankHolidaysDays,
-					tr(fmt.Sprintf("%s%d", r.currency, userData.TotalAmount))),
+					userData.NumWorkHours, userData.NumWeekendHours, userData.NumBankHolidaysHours,
+					tr(fmt.Sprintf("%s%v", r.currency, userData.TotalAmountWorkHours)),
+					tr(fmt.Sprintf("%s%v", r.currency, userData.TotalAmountWeekendHours)),
+					tr(fmt.Sprintf("%s%v", r.currency, userData.TotalAmountBankHolidaysHours)),
+					tr(fmt.Sprintf("%s%v", r.currency, userData.TotalAmount))),
 				"", 0, "L", false, 0, "")
 			pdf.Ln(5)
 		}
 
 		pdf.Ln(10)
+	}
+
+	pdf.AddPage()
+
+	pdf.SetFont("Arial", "B", 13)
+	pdf.CellFormat(0, 5, "  Users summary",
+		"L", 0, "L", false, 0, "")
+	pdf.Ln(8)
+
+	pdf.SetFont("Courier", "B", 9)
+	pdf.CellFormat(0, 5,
+		fmt.Sprintf(matrixRowFormat, "USER", "WEEKDAY", "WEEKEND", "B. HOLIDAY", "WEEKDAY", "WEEKEND", "B. HOLIDAY", "TOTAL"),
+		"", 0, "L", false, 0, "")
+	pdf.Ln(3)
+	pdf.CellFormat(0, 5,
+		fmt.Sprintf(matrixRowFormat, "", "HOURS", "HOURS", "HOURS", "AMOUNT", "AMOUNT", "AMOUNT", "AMOUNT"),
+		"B", 0, "L", false, 0, "")
+	pdf.Ln(5)
+
+	pdf.SetFont("Courier", "", 9)
+	for _, userData := range data.UsersSchedulesSummary {
+		pdf.CellFormat(0, 5,
+			fmt.Sprintf(matrixRowFormat, tr(userData.Name),
+				userData.NumWorkHours, userData.NumWeekendHours, userData.NumBankHolidaysHours,
+				tr(fmt.Sprintf("%s%v", r.currency, userData.TotalAmountWorkHours)),
+				tr(fmt.Sprintf("%s%v", r.currency, userData.TotalAmountWeekendHours)),
+				tr(fmt.Sprintf("%s%v", r.currency, userData.TotalAmountBankHolidaysHours)),
+				tr(fmt.Sprintf("%s%v", r.currency, userData.TotalAmount))),
+			"", 0, "L", false, 0, "")
+		pdf.Ln(5)
 	}
 
 	dir, _ := homedir.Dir()

@@ -11,8 +11,8 @@ type consoleReport struct {
 
 const (
 	blankLine = ""
-	separator = " -------------------------------------------------------------------------------------------------------------------------------"
-	rowFormat = "| %-25s || %7v | %7v | %12v | %13v | %13v | %18v | %8v |"
+	separator = " --------------------------------------------------------------------------------------------------------------------------------"
+	rowFormat = "| %-25s || %7v | %7v | %12v | %13v | %13v | %18v | %9v |"
 )
 
 func NewConsoleReport(currency string) Writer {
@@ -33,16 +33,36 @@ func (r *consoleReport) GenerateReport(data *PrintableData) (string, error) {
 		fmt.Println(fmt.Sprintf("| Schedule: '%s' (%s)", scheduleData.Name, scheduleData.ID))
 		fmt.Println(separator)
 		fmt.Println(fmt.Sprintf(rowFormat, "USER", "WEEKDAY", "WEEKEND", "BANK HOLIDAY", "TOTAL WEEKDAY", "TOTAL WEEKEND", "TOTAL BANK HOLIDAY", "TOTAL"))
+		fmt.Println(fmt.Sprintf(rowFormat, "", "HOURS", "HOURS", "HOURS", "AMOUNT", "AMOUNT", "AMOUNT", "AMOUNT"))
 		fmt.Println(separator)
 
 		for _, userData := range scheduleData.RotaUsers {
 			fmt.Println(fmt.Sprintf(rowFormat, userData.Name,
-				userData.NumWorkDays, userData.NumWeekendDays, userData.NumBankHolidaysDays,
-				userData.TotalAmountWorkDays, userData.TotalAmountWeekendDays, userData.TotalAmountBankHolidaysDays,
-				fmt.Sprintf("%s%d", r.currency, userData.TotalAmount)))
+				userData.NumWorkHours, userData.NumWeekendHours, userData.NumBankHolidaysHours,
+				fmt.Sprintf("%s%v", r.currency, userData.TotalAmountWorkHours),
+				fmt.Sprintf("%s%v", r.currency, userData.TotalAmountWeekendHours),
+				fmt.Sprintf("%s%v", r.currency, userData.TotalAmountBankHolidaysHours),
+				fmt.Sprintf("%s%v", r.currency, userData.TotalAmount)))
 		}
+		fmt.Println(separator)
 	}
 
+	fmt.Println("")
+	fmt.Println(separator)
+	fmt.Println("| Users summary")
+	fmt.Println(separator)
+	fmt.Println(fmt.Sprintf(rowFormat, "USER", "WEEKDAY", "WEEKEND", "BANK HOLIDAY", "TOTAL WEEKDAY", "TOTAL WEEKEND", "TOTAL BANK HOLIDAY", "TOTAL"))
+	fmt.Println(fmt.Sprintf(rowFormat, "", "HOURS", "HOURS", "HOURS", "AMOUNT", "AMOUNT", "AMOUNT", "AMOUNT"))
+	fmt.Println(separator)
+
+	for _, userData := range data.UsersSchedulesSummary {
+		fmt.Println(fmt.Sprintf(rowFormat, userData.Name,
+			userData.NumWorkHours, userData.NumWeekendHours, userData.NumBankHolidaysHours,
+			fmt.Sprintf("%s%v", r.currency, userData.TotalAmountWorkHours),
+			fmt.Sprintf("%s%v", r.currency, userData.TotalAmountWeekendHours),
+			fmt.Sprintf("%s%v", r.currency, userData.TotalAmountBankHolidaysHours),
+			fmt.Sprintf("%s%v", r.currency, userData.TotalAmount)))
+	}
 	fmt.Println(separator)
 
 	return "", nil

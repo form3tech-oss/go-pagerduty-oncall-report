@@ -55,6 +55,7 @@ func processArguments() InputData {
 	lastMonth := now.AddDate(0, -1, 0)
 	startDate := time.Date(lastMonth.Year(), lastMonth.Month(), 1, 0, 0, 0, 0, time.UTC)
 	endDate := startDate.AddDate(0, 1, 0)
+	log.Printf("startDate: %s, endDate: %s", startDate, endDate)
 
 	if len(schedules) == 1 && schedules[0] == "all" {
 		schedules = []string{}
@@ -88,6 +89,14 @@ func generateReport(cmd *cobra.Command, args []string) error {
 		SchedulesData: make([]*report.ScheduleData, 0),
 	}
 
+	weekDayHourlyPrice, weekendDayHourlyPrice, bhDayHourlyPrice, err := getPrices()
+	if err != nil {
+		return err
+	}
+
+	log.Println(fmt.Sprintf("Hourly prices - Week day: %f, Weekend day: %f, Bank holiday: %f",
+		weekDayHourlyPrice, weekendDayHourlyPrice, bhDayHourlyPrice))
+
 	for _, scheduleID := range input.schedules {
 		log.Printf("Loading information for the schedule '%s'", scheduleID)
 		scheduleInfo, err := getScheduleInformation(scheduleID, input.startDate, input.endDate)
@@ -100,13 +109,17 @@ func generateReport(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		scheduleData, err := generateScheduleData(scheduleInfo, usersRotationData)
+		scheduleData, err := generateScheduleData(scheduleInfo, usersRotationData,
+			weekDayHourlyPrice, weekendDayHourlyPrice, bhDayHourlyPrice)
 		if err != nil {
 			return err
 		}
 
 		printableData.SchedulesData = append(printableData.SchedulesData, scheduleData)
 	}
+
+	summaryPrintableData := calculateSummaryData(printableData.SchedulesData)
+	printableData.UsersSchedulesSummary = summaryPrintableData
 
 	var reportWriter report.Writer
 	if outputFormat == "pdf" {
@@ -123,6 +136,38 @@ func generateReport(cmd *cobra.Command, args []string) error {
 		log.Println(message)
 	}
 	return nil
+}
+
+func calculateSummaryData(data []*report.ScheduleData) []*report.UserSchedulesSummary {
+
+	usersSummary := make(map[string]*report.UserSchedulesSummary, 0)
+
+	for _, schedData := range data {
+		for _, schedUser := range schedData.RotaUsers {
+			userSummary, ok := usersSummary[schedUser.Name]
+			if !ok {
+				userSummary = &report.UserSchedulesSummary{
+					Name: schedUser.Name,
+				}
+				usersSummary[schedUser.Name] = userSummary
+			}
+
+			userSummary.NumWorkHours += schedUser.NumWorkHours
+			userSummary.NumWeekendHours += schedUser.NumWeekendHours
+			userSummary.NumBankHolidaysHours += schedUser.NumBankHolidaysHours
+			userSummary.TotalAmountWorkHours += schedUser.TotalAmountWorkHours
+			userSummary.TotalAmountWeekendHours += schedUser.TotalAmountWeekendHours
+			userSummary.TotalAmountBankHolidaysHours += schedUser.TotalAmountBankHolidaysHours
+			userSummary.TotalAmount += schedUser.TotalAmount
+		}
+	}
+
+	var result []*report.UserSchedulesSummary
+	for _, userSummary := range usersSummary {
+		result = append(result, userSummary)
+	}
+
+	return result
 }
 
 func getScheduleInformation(scheduleID string, startDate, endDate time.Time) (*api.ScheduleInfo, error) {
@@ -179,25 +224,15 @@ func getUsersRotationData(scheduleInfo *api.ScheduleInfo) (api.ScheduleUserRotat
 	return usersInfo, nil
 }
 
-func generateScheduleData(scheduleInfo *api.ScheduleInfo, usersRotationData api.ScheduleUserRotationData) (*report.ScheduleData, error) {
-	weekDayPrice, err := Config.FindPriceByDay("weekday")
-	if err != nil {
-		return nil, err
-	}
-	weekendDayPrice, err := Config.FindPriceByDay("weekend")
-	if err != nil {
-		return nil, err
-	}
-	bhDayPrice, err := Config.FindPriceByDay("bankholiday")
-	if err != nil {
-		return nil, err
-	}
+func generateScheduleData(scheduleInfo *api.ScheduleInfo, usersRotationData api.ScheduleUserRotationData,
+	weekDayHourlyPrice, weekendDayHourlyPrice, bhDayHourlyPrice float32) (*report.ScheduleData, error) {
 
 	scheduleData := &report.ScheduleData{
 		ID:        scheduleInfo.ID,
 		Name:      scheduleInfo.Name,
 		RotaUsers: make([]*report.ScheduleUser, 0),
 	}
+
 	for userID, userRotaInfo := range usersRotationData {
 		rotationUserConfig, err := Config.FindRotationUserInfoByID(userID)
 		if err != nil {
@@ -215,29 +250,54 @@ func generateScheduleData(scheduleInfo *api.ScheduleInfo, usersRotationData api.
 		}
 
 		for _, period := range userRotaInfo.Periods {
-			//fmt.Println(fmt.Sprintf("User rota info [%s] - start: %s, end: %s", userID, period.Start, period.End))
 			currentDate := period.Start
+			periodNumBHH, periodNumWendH, periodNumWH := float32(0), float32(0), float32(0)
 			for currentDate.Before(period.End) {
 				//log.Println(userRotaInfo.Name, "current date:", currentDate, "- bank holiday: ", userCalendar.IsDateBankHoliday(currentDate), "- weekend: ", userCalendar.IsWeekend(currentDate))
 				if userCalendar.IsDateBankHoliday(currentDate) {
-					scheduleUserData.NumBankHolidaysDays++
+					periodNumBHH += 0.5
 				} else if userCalendar.IsWeekend(currentDate) {
-					scheduleUserData.NumWeekendDays++
+					periodNumWendH += 0.5
 				} else {
-					scheduleUserData.NumWorkDays++
+					periodNumWH += 0.5
 				}
-				currentDate = currentDate.Add(time.Hour * 24)
+
+				currentDate = currentDate.Add(time.Minute * 30)
 			}
+			scheduleUserData.NumBankHolidaysHours += periodNumBHH
+			scheduleUserData.NumWeekendHours += periodNumWendH
+			scheduleUserData.NumWorkHours += periodNumWH
+			//fmt.Println(fmt.Sprintf("User rota info [%s] - start: %s, end: %s, work hours: %f, weekend hours: %f, bank holiday hours: %f",
+			//	userRotaInfo.Name, period.Start, period.End, periodNumWH, periodNumWendH, periodNumBHH))
+			periodNumBHH, periodNumWendH, periodNumWH = float32(0), float32(0), float32(0)
 		}
 
-		scheduleUserData.TotalAmountWorkDays = scheduleUserData.NumWorkDays * *weekDayPrice
-		scheduleUserData.TotalAmountWeekendDays = scheduleUserData.NumWeekendDays * *weekendDayPrice
-		scheduleUserData.TotalAmountBankHolidaysDays = scheduleUserData.NumBankHolidaysDays * *bhDayPrice
-		scheduleUserData.TotalAmount = scheduleUserData.TotalAmountWorkDays +
-			scheduleUserData.TotalAmountWeekendDays +
-			scheduleUserData.TotalAmountBankHolidaysDays
+		scheduleUserData.TotalAmountWorkHours = scheduleUserData.NumWorkHours * weekDayHourlyPrice
+		scheduleUserData.TotalAmountWeekendHours = scheduleUserData.NumWeekendHours * weekendDayHourlyPrice
+		scheduleUserData.TotalAmountBankHolidaysHours = scheduleUserData.NumBankHolidaysHours * bhDayHourlyPrice
+		scheduleUserData.TotalAmount = scheduleUserData.TotalAmountWorkHours +
+			scheduleUserData.TotalAmountWeekendHours +
+			scheduleUserData.TotalAmountBankHolidaysHours
 		scheduleData.RotaUsers = append(scheduleData.RotaUsers, scheduleUserData)
 	}
 
 	return scheduleData, nil
+}
+
+func getPrices() (float32, float32, float32, error) {
+
+	weekDayPrice, err := Config.FindPriceByDay("weekday")
+	if err != nil {
+		return 0, 0, 0, err
+	}
+	weekendDayPrice, err := Config.FindPriceByDay("weekend")
+	if err != nil {
+		return 0, 0, 0, err
+	}
+	bhDayPrice, err := Config.FindPriceByDay("bankholiday")
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	return float32(*weekDayPrice) / 24, float32(*weekendDayPrice) / 24, float32(*bhDayPrice) / 24, nil
 }

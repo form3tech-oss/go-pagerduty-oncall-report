@@ -140,7 +140,7 @@ func generateReport(cmd *cobra.Command, args []string) error {
 
 func calculateSummaryData(data []*report.ScheduleData) []*report.UserSchedulesSummary {
 
-	usersSummary := make(map[string]*report.UserSchedulesSummary, 0)
+	usersSummary := make(map[string]*report.UserSchedulesSummary)
 
 	for _, schedData := range data {
 		for _, schedUser := range schedData.RotaUsers {
@@ -162,7 +162,7 @@ func calculateSummaryData(data []*report.ScheduleData) []*report.UserSchedulesSu
 		}
 	}
 
-	var result []*report.UserSchedulesSummary
+	result := make([]*report.UserSchedulesSummary, 0)
 	for _, userSummary := range usersSummary {
 		result = append(result, userSummary)
 	}
@@ -202,7 +202,6 @@ func getUsersRotationData(scheduleInfo *api.ScheduleInfo) (api.ScheduleUserRotat
 		if err != nil {
 			return nil, err
 		}
-		//fmt.Println(fmt.Sprintf("[%s] %-25s %v - %v", entry.User.ID, entry.User.Summary, startDate, endDate))
 
 		userRotaInfo, ok := usersInfo[entry.User.ID]
 		if !ok {
@@ -251,25 +250,17 @@ func generateScheduleData(scheduleInfo *api.ScheduleInfo, usersRotationData api.
 
 		for _, period := range userRotaInfo.Periods {
 			currentDate := period.Start
-			periodNumBHH, periodNumWendH, periodNumWH := float32(0), float32(0), float32(0)
 			for currentDate.Before(period.End) {
-				//log.Println(userRotaInfo.Name, "current date:", currentDate, "- bank holiday: ", userCalendar.IsDateBankHoliday(currentDate), "- weekend: ", userCalendar.IsWeekend(currentDate))
 				if userCalendar.IsDateBankHoliday(currentDate) {
-					periodNumBHH += 0.5
+					scheduleUserData.NumBankHolidaysHours += 0.5
 				} else if userCalendar.IsWeekend(currentDate) {
-					periodNumWendH += 0.5
+					scheduleUserData.NumWeekendHours += 0.5
 				} else {
-					periodNumWH += 0.5
+					scheduleUserData.NumWorkHours += 0.5
 				}
 
 				currentDate = currentDate.Add(time.Minute * 30)
 			}
-			scheduleUserData.NumBankHolidaysHours += periodNumBHH
-			scheduleUserData.NumWeekendHours += periodNumWendH
-			scheduleUserData.NumWorkHours += periodNumWH
-			//fmt.Println(fmt.Sprintf("User rota info [%s] - start: %s, end: %s, work hours: %f, weekend hours: %f, bank holiday hours: %f",
-			//	userRotaInfo.Name, period.Start, period.End, periodNumWH, periodNumWendH, periodNumBHH))
-			periodNumBHH, periodNumWendH, periodNumWH = float32(0), float32(0), float32(0)
 		}
 
 		scheduleUserData.TotalAmountWorkHours = scheduleUserData.NumWorkHours * weekDayHourlyPrice

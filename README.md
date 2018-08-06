@@ -58,21 +58,27 @@ The configuration must be a `.yml` file (specified by the `--config` flag) with 
 # PagerDuty auth token
 pdAuthToken: 12345
 
-# Rotation starting time
-rotationStartHour: 08:00:00
+# Rotation general information
+rotationInfo:
+  dailyRotationStartsAt: 8
+  checkRotationChangeEvery: 30 # minutes
 
-# Currency to be shown when calculating the daily rates
-currency: £
+# Rotation excluded hours by day type
+rotationExcludedHours:
+  - day: weekday
+    excludedStartsAt: 9
+    excludedEndsAt: 17
 
-# Prices assigned to each day type
-# Three types must be specified: weekday, weekend and bankholiday
+# Rotation prices by day type
 rotationPrices:
-  - type: weekday
-    price: 1
-  - type: weekend
-    price: 2
-  - type: bankholiday
-    price: 2
+  currency: £
+  daysInfo:
+    - day: weekday
+      price: 1
+    - day: weekend
+      price: 2
+    - day: bankholiday
+      price: 2
 
 # List of users to be considered for the rotation
 # Each one should be specifying a calendar for the bank holidays
@@ -84,7 +90,7 @@ rotationUsers:
   - name: "User 2"
     holidaysCalendar: uk
     userId: P22A22B
-  - name: "Roger Solé Navarro"
+  - name: "Roger Solé"
     holidaysCalendar: sp_premia
     userId: P33A33B
 
@@ -110,4 +116,4 @@ schedulesToIgnore:
 ## Roadmap
 
 - Add support for calendars loaded from outside the application
-- Generate a summary for all the users involved in the rotations reported at the end
+- Enable input to select month (concrete dates) to generate the report for

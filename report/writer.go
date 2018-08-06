@@ -1,6 +1,8 @@
 package report
 
-import "time"
+import (
+	"time"
+)
 
 type PrintableData struct {
 	Start                 time.Time
@@ -18,10 +20,13 @@ type ScheduleData struct {
 type UserSchedulesSummary struct {
 	Name                         string
 	NumWorkHours                 float32
+	NumWorkDays                  float32
 	TotalAmountWorkHours         float32
 	NumWeekendHours              float32
+	NumWeekendDays               float32
 	TotalAmountWeekendHours      float32
 	NumBankHolidaysHours         float32
+	NumBankHolidaysDays          float32
 	TotalAmountBankHolidaysHours float32
 	TotalAmount                  float32
 }
@@ -29,10 +34,13 @@ type UserSchedulesSummary struct {
 type ScheduleUser struct {
 	Name                         string
 	NumWorkHours                 float32
+	NumWorkDays                  float32
 	TotalAmountWorkHours         float32
 	NumWeekendHours              float32
+	NumWeekendDays               float32
 	TotalAmountWeekendHours      float32
 	NumBankHolidaysHours         float32
+	NumBankHolidaysDays          float32
 	TotalAmountBankHolidaysHours float32
 	TotalAmount                  float32
 }

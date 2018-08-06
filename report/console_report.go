@@ -2,6 +2,8 @@ package report
 
 import (
 	"fmt"
+	"sort"
+	"strings"
 	"time"
 )
 
@@ -34,15 +36,27 @@ func (r *consoleReport) GenerateReport(data *PrintableData) (string, error) {
 		fmt.Println(separator)
 		fmt.Println(fmt.Sprintf(rowFormat, "USER", "WEEKDAY", "WEEKEND", "BANK HOLIDAY", "TOTAL WEEKDAY", "TOTAL WEEKEND", "TOTAL BANK HOLIDAY", "TOTAL"))
 		fmt.Println(fmt.Sprintf(rowFormat, "", "HOURS", "HOURS", "HOURS", "AMOUNT", "AMOUNT", "AMOUNT", "AMOUNT"))
+		fmt.Println(fmt.Sprintf(rowFormat, "", "DAYS", "DAYS", "DAYS", "", "", "", ""))
 		fmt.Println(separator)
+
+		sort.Slice(scheduleData.RotaUsers, func(i, j int) bool {
+			return strings.Compare(scheduleData.RotaUsers[i].Name, scheduleData.RotaUsers[j].Name) < 1
+		})
 
 		for _, userData := range scheduleData.RotaUsers {
 			fmt.Println(fmt.Sprintf(rowFormat, userData.Name,
-				userData.NumWorkHours, userData.NumWeekendHours, userData.NumBankHolidaysHours,
+				fmt.Sprintf("%v h", userData.NumWorkHours),
+				fmt.Sprintf("%v h", userData.NumWeekendHours),
+				fmt.Sprintf("%v h", userData.NumBankHolidaysHours),
 				fmt.Sprintf("%s%v", r.currency, userData.TotalAmountWorkHours),
 				fmt.Sprintf("%s%v", r.currency, userData.TotalAmountWeekendHours),
 				fmt.Sprintf("%s%v", r.currency, userData.TotalAmountBankHolidaysHours),
 				fmt.Sprintf("%s%v", r.currency, userData.TotalAmount)))
+			fmt.Println(fmt.Sprintf(rowFormat, "_________________________",
+				fmt.Sprintf("%.1f d", userData.NumWorkDays),
+				fmt.Sprintf("%.1f d", userData.NumWeekendDays),
+				fmt.Sprintf("%.1f d", userData.NumBankHolidaysDays),
+				"_____________", "_____________", "__________________", "_________"))
 		}
 		fmt.Println(separator)
 	}
@@ -53,15 +67,27 @@ func (r *consoleReport) GenerateReport(data *PrintableData) (string, error) {
 	fmt.Println(separator)
 	fmt.Println(fmt.Sprintf(rowFormat, "USER", "WEEKDAY", "WEEKEND", "BANK HOLIDAY", "TOTAL WEEKDAY", "TOTAL WEEKEND", "TOTAL BANK HOLIDAY", "TOTAL"))
 	fmt.Println(fmt.Sprintf(rowFormat, "", "HOURS", "HOURS", "HOURS", "AMOUNT", "AMOUNT", "AMOUNT", "AMOUNT"))
+	fmt.Println(fmt.Sprintf(rowFormat, "", "DAYS", "DAYS", "DAYS", "", "", "", ""))
 	fmt.Println(separator)
+
+	sort.Slice(data.UsersSchedulesSummary, func(i, j int) bool {
+		return strings.Compare(data.UsersSchedulesSummary[i].Name, data.UsersSchedulesSummary[j].Name) < 1
+	})
 
 	for _, userData := range data.UsersSchedulesSummary {
 		fmt.Println(fmt.Sprintf(rowFormat, userData.Name,
-			userData.NumWorkHours, userData.NumWeekendHours, userData.NumBankHolidaysHours,
+			fmt.Sprintf("%v h", userData.NumWorkHours),
+			fmt.Sprintf("%v h", userData.NumWeekendHours),
+			fmt.Sprintf("%v h", userData.NumBankHolidaysHours),
 			fmt.Sprintf("%s%v", r.currency, userData.TotalAmountWorkHours),
 			fmt.Sprintf("%s%v", r.currency, userData.TotalAmountWeekendHours),
 			fmt.Sprintf("%s%v", r.currency, userData.TotalAmountBankHolidaysHours),
 			fmt.Sprintf("%s%v", r.currency, userData.TotalAmount)))
+		fmt.Println(fmt.Sprintf(rowFormat, "_________________________",
+			fmt.Sprintf("%.1f d", userData.NumWorkDays),
+			fmt.Sprintf("%.1f d", userData.NumWeekendDays),
+			fmt.Sprintf("%.1f d", userData.NumBankHolidaysDays),
+			"_____________", "_____________", "__________________", "_________"))
 	}
 	fmt.Println(separator)
 

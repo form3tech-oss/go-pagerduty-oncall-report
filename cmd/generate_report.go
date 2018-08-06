@@ -55,6 +55,7 @@ func processArguments() InputData {
 	lastMonth := now.AddDate(0, -1, 0)
 	startDate := time.Date(lastMonth.Year(), lastMonth.Month(), 1, 0, 0, 0, 0, time.UTC)
 	endDate := startDate.AddDate(0, 1, 0)
+	endDate = endDate.Add(time.Hour * time.Duration(Config.RotationInfo.DailyRotationStartsAt))
 	log.Printf("startDate: %s, endDate: %s", startDate, endDate)
 
 	if len(schedules) == 1 && schedules[0] == "all" {
@@ -89,13 +90,14 @@ func generateReport(cmd *cobra.Command, args []string) error {
 		SchedulesData: make([]*report.ScheduleData, 0),
 	}
 
-	weekDayHourlyPrice, weekendDayHourlyPrice, bhDayHourlyPrice, err := getPrices()
+	pricesInfo, err := generatePricesInfo()
 	if err != nil {
 		return err
 	}
 
-	log.Println(fmt.Sprintf("Hourly prices - Week day: %f, Weekend day: %f, Bank holiday: %f",
-		weekDayHourlyPrice, weekendDayHourlyPrice, bhDayHourlyPrice))
+	log.Println(fmt.Sprintf("Hourly prices (in %s) - Week day: %v (%vh), Weekend day: %v (%vh), Bank holiday: %v (%vh)",
+		Config.RotationPrices.Currency, pricesInfo.WeekDayHourlyPrice, pricesInfo.HoursWeekDay, pricesInfo.WeekendDayHourlyPrice,
+		pricesInfo.HoursWeekendDay, pricesInfo.BhDayHourlyPrice, pricesInfo.HoursBhDay))
 
 	for _, scheduleID := range input.schedules {
 		log.Printf("Loading information for the schedule '%s'", scheduleID)
@@ -109,8 +111,7 @@ func generateReport(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		scheduleData, err := generateScheduleData(scheduleInfo, usersRotationData,
-			weekDayHourlyPrice, weekendDayHourlyPrice, bhDayHourlyPrice)
+		scheduleData, err := generateScheduleData(scheduleInfo, usersRotationData, pricesInfo)
 		if err != nil {
 			return err
 		}
@@ -118,14 +119,14 @@ func generateReport(cmd *cobra.Command, args []string) error {
 		printableData.SchedulesData = append(printableData.SchedulesData, scheduleData)
 	}
 
-	summaryPrintableData := calculateSummaryData(printableData.SchedulesData)
+	summaryPrintableData := calculateSummaryData(printableData.SchedulesData, pricesInfo)
 	printableData.UsersSchedulesSummary = summaryPrintableData
 
 	var reportWriter report.Writer
 	if outputFormat == "pdf" {
-		reportWriter = report.NewPDFReport(Config.Currency)
+		reportWriter = report.NewPDFReport(Config.RotationPrices.Currency)
 	} else {
-		reportWriter = report.NewConsoleReport(Config.Currency)
+		reportWriter = report.NewConsoleReport(Config.RotationPrices.Currency)
 	}
 	message, err := reportWriter.GenerateReport(printableData)
 	if err != nil {
@@ -138,7 +139,7 @@ func generateReport(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func calculateSummaryData(data []*report.ScheduleData) []*report.UserSchedulesSummary {
+func calculateSummaryData(data []*report.ScheduleData, pricesInfo *PricesInfo) []*report.UserSchedulesSummary {
 
 	usersSummary := make(map[string]*report.UserSchedulesSummary)
 
@@ -164,6 +165,9 @@ func calculateSummaryData(data []*report.ScheduleData) []*report.UserSchedulesSu
 
 	result := make([]*report.UserSchedulesSummary, 0)
 	for _, userSummary := range usersSummary {
+		userSummary.NumWorkDays = userSummary.NumWorkHours / float32(pricesInfo.HoursWeekDay)
+		userSummary.NumWeekendDays = userSummary.NumWeekendHours / float32(pricesInfo.HoursWeekendDay)
+		userSummary.NumBankHolidaysDays = userSummary.NumBankHolidaysHours / float32(pricesInfo.HoursBhDay)
 		result = append(result, userSummary)
 	}
 
@@ -224,7 +228,7 @@ func getUsersRotationData(scheduleInfo *api.ScheduleInfo) (api.ScheduleUserRotat
 }
 
 func generateScheduleData(scheduleInfo *api.ScheduleInfo, usersRotationData api.ScheduleUserRotationData,
-	weekDayHourlyPrice, weekendDayHourlyPrice, bhDayHourlyPrice float32) (*report.ScheduleData, error) {
+	pricesInfo *PricesInfo) (*report.ScheduleData, error) {
 
 	scheduleData := &report.ScheduleData{
 		ID:        scheduleInfo.ID,
@@ -235,7 +239,8 @@ func generateScheduleData(scheduleInfo *api.ScheduleInfo, usersRotationData api.
 	for userID, userRotaInfo := range usersRotationData {
 		rotationUserConfig, err := Config.FindRotationUserInfoByID(userID)
 		if err != nil {
-			return nil, err
+			log.Println("Error:", err)
+			continue
 		}
 
 		calendarName := fmt.Sprintf("%s-%d", rotationUserConfig.HolidaysCalendar, scheduleInfo.Start.Year())
@@ -249,23 +254,20 @@ func generateScheduleData(scheduleInfo *api.ScheduleInfo, usersRotationData api.
 		}
 
 		for _, period := range userRotaInfo.Periods {
+			currentMonth := period.Start.Month()
 			currentDate := period.Start
 			for currentDate.Before(period.End) {
-				if userCalendar.IsDateBankHoliday(currentDate) {
-					scheduleUserData.NumBankHolidaysHours += 0.5
-				} else if userCalendar.IsWeekend(currentDate) {
-					scheduleUserData.NumWeekendHours += 0.5
-				} else {
-					scheduleUserData.NumWorkHours += 0.5
-				}
-
-				currentDate = currentDate.Add(time.Minute * 30)
+				updateDataForDate(&userCalendar, scheduleUserData, currentMonth, currentDate)
+				currentDate = currentDate.Add(time.Minute * time.Duration(Config.RotationInfo.CheckRotationChangeEvery))
 			}
 		}
 
-		scheduleUserData.TotalAmountWorkHours = scheduleUserData.NumWorkHours * weekDayHourlyPrice
-		scheduleUserData.TotalAmountWeekendHours = scheduleUserData.NumWeekendHours * weekendDayHourlyPrice
-		scheduleUserData.TotalAmountBankHolidaysHours = scheduleUserData.NumBankHolidaysHours * bhDayHourlyPrice
+		scheduleUserData.NumWorkDays = scheduleUserData.NumWorkHours / float32(pricesInfo.HoursWeekDay)
+		scheduleUserData.NumWeekendDays = scheduleUserData.NumWeekendHours / float32(pricesInfo.HoursWeekendDay)
+		scheduleUserData.NumBankHolidaysDays = scheduleUserData.NumBankHolidaysHours / float32(pricesInfo.HoursBhDay)
+		scheduleUserData.TotalAmountWorkHours = scheduleUserData.NumWorkHours * pricesInfo.WeekDayHourlyPrice
+		scheduleUserData.TotalAmountWeekendHours = scheduleUserData.NumWeekendHours * pricesInfo.WeekendDayHourlyPrice
+		scheduleUserData.TotalAmountBankHolidaysHours = scheduleUserData.NumBankHolidaysHours * pricesInfo.BhDayHourlyPrice
 		scheduleUserData.TotalAmount = scheduleUserData.TotalAmountWorkHours +
 			scheduleUserData.TotalAmountWeekendHours +
 			scheduleUserData.TotalAmountBankHolidaysHours
@@ -275,20 +277,105 @@ func generateScheduleData(scheduleInfo *api.ScheduleInfo, usersRotationData api.
 	return scheduleData, nil
 }
 
-func getPrices() (float32, float32, float32, error) {
+func updateDataForDate(calendar *configuration.BHCalendar, data *report.ScheduleUser, currentMonth time.Month, date time.Time) {
+
+	if date.Hour() < Config.RotationInfo.DailyRotationStartsAt {
+		newDate := date.Add(time.Hour * time.Duration(-(date.Hour() + 1))) // move to yesterday night to determine which kind of day it was
+		// if yesterday night was last month, ignore the date
+		if newDate.Month() == currentMonth {
+			updateDataForDate(calendar, data, currentMonth, newDate)
+		}
+	} else {
+		if calendar.IsDateBankHoliday(date) {
+			excludedHours, _ := Config.FindRotationExcludedHoursByDay("bankholiday")
+			if excludedHours == nil {
+				//fmt.Printf("%s - Month: %d, time: %v -- bank holiday\n", data.Name, currentMonth, date)
+				data.NumBankHolidaysHours += 0.5
+				return
+			}
+
+			if date.Hour() < excludedHours.ExcludedEndsAt && date.Hour() >= excludedHours.ExcludedEndsAt {
+				//fmt.Printf("%s - Month: %d, time: %v -- bank holiday non excluded hours\n", data.Name, currentMonth, date)
+				data.NumBankHolidaysHours += 0.5
+			}
+		} else if calendar.IsWeekend(date) {
+			excludedHours, _ := Config.FindRotationExcludedHoursByDay("weekend")
+			if excludedHours == nil {
+				//fmt.Printf("%s - Month: %d, time: %v -- weekend\n", data.Name, currentMonth, date)
+				data.NumWeekendHours += 0.5
+				return
+			}
+
+			if date.Hour() < excludedHours.ExcludedEndsAt && date.Hour() >= excludedHours.ExcludedEndsAt {
+				//fmt.Printf("%s - Month: %d, time: %v -- weekend non excluded hours\n", data.Name, currentMonth, date)
+				data.NumWeekendHours += 0.5
+			}
+		} else {
+			excludedHours, _ := Config.FindRotationExcludedHoursByDay("weekday")
+			if excludedHours == nil {
+				//fmt.Printf("%s - Month: %d, time: %v -- weekday\n", data.Name, currentMonth, date)
+				data.NumWorkHours += 0.5
+				return
+			}
+
+			if date.Hour() < excludedHours.ExcludedStartsAt || date.Hour() >= excludedHours.ExcludedEndsAt {
+				//fmt.Printf("%s - Month: %d, time: %v -- weekday non excluded hours\n", data.Name, currentMonth, date)
+				data.NumWorkHours += 0.5
+			}
+		}
+	}
+}
+
+type PricesInfo struct {
+	WeekDayHourlyPrice    float32
+	HoursWeekDay          int
+	WeekendDayHourlyPrice float32
+	HoursWeekendDay       int
+	BhDayHourlyPrice      float32
+	HoursBhDay            int
+}
+
+func generatePricesInfo() (*PricesInfo, error) {
 
 	weekDayPrice, err := Config.FindPriceByDay("weekday")
 	if err != nil {
-		return 0, 0, 0, err
+		return nil, err
 	}
+	excludedWeekDayHoursAmount := 0
+	excludedHours, _ := Config.FindRotationExcludedHoursByDay("weekday")
+	if excludedHours != nil {
+		excludedWeekDayHoursAmount = excludedHours.ExcludedEndsAt - excludedHours.ExcludedStartsAt
+	}
+	weekDayWorkingHours := 24 - excludedWeekDayHoursAmount
+
 	weekendDayPrice, err := Config.FindPriceByDay("weekend")
 	if err != nil {
-		return 0, 0, 0, err
+		return nil, err
 	}
+	excludedWeekendDayHoursAmount := 0
+	excludedHours, _ = Config.FindRotationExcludedHoursByDay("weekend")
+	if excludedHours != nil {
+		excludedWeekendDayHoursAmount = excludedHours.ExcludedEndsAt - excludedHours.ExcludedStartsAt
+	}
+	weekendDayWorkingHours := 24 - excludedWeekendDayHoursAmount
+
 	bhDayPrice, err := Config.FindPriceByDay("bankholiday")
 	if err != nil {
-		return 0, 0, 0, err
+		return nil, err
 	}
+	excludedBhDayHoursAmount := 0
+	excludedHours, _ = Config.FindRotationExcludedHoursByDay("bankholiday")
+	if excludedHours != nil {
+		excludedBhDayHoursAmount = excludedHours.ExcludedEndsAt - excludedHours.ExcludedStartsAt
+	}
+	bhWorkingHours := 24 - excludedBhDayHoursAmount
 
-	return float32(*weekDayPrice) / 24, float32(*weekendDayPrice) / 24, float32(*bhDayPrice) / 24, nil
+	return &PricesInfo{
+		WeekDayHourlyPrice:    float32(*weekDayPrice) / float32(weekDayWorkingHours),
+		HoursWeekDay:          weekDayWorkingHours,
+		WeekendDayHourlyPrice: float32(*weekendDayPrice) / float32(weekendDayWorkingHours),
+		HoursWeekendDay:       weekendDayWorkingHours,
+		BhDayHourlyPrice:      float32(*bhDayPrice) / float32(bhWorkingHours),
+		HoursBhDay:            bhWorkingHours,
+	}, nil
 }

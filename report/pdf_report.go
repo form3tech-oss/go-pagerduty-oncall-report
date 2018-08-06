@@ -5,6 +5,10 @@ import (
 	"log"
 	"time"
 
+	"sort"
+
+	"strings"
+
 	"github.com/jung-kurt/gofpdf"
 	"github.com/mitchellh/go-homedir"
 )
@@ -57,18 +61,37 @@ func (r *pdfReport) GenerateReport(data *PrintableData) (string, error) {
 		pdf.Ln(3)
 		pdf.CellFormat(0, 5,
 			fmt.Sprintf(matrixRowFormat, "", "HOURS", "HOURS", "HOURS", "AMOUNT", "AMOUNT", "AMOUNT", "AMOUNT"),
+			"", 0, "L", false, 0, "")
+		pdf.Ln(3)
+		pdf.CellFormat(0, 5,
+			fmt.Sprintf(matrixRowFormat, "", "DAYS", "DAYS", "DAYS", "", "", "", ""),
 			"B", 0, "L", false, 0, "")
 		pdf.Ln(5)
 
 		pdf.SetFont("Courier", "", 9)
+
+		sort.Slice(scheduleData.RotaUsers, func(i, j int) bool {
+			return strings.Compare(scheduleData.RotaUsers[i].Name, scheduleData.RotaUsers[j].Name) < 1
+		})
+
 		for _, userData := range scheduleData.RotaUsers {
 			pdf.CellFormat(0, 5,
 				fmt.Sprintf(matrixRowFormat, tr(userData.Name),
-					userData.NumWorkHours, userData.NumWeekendHours, userData.NumBankHolidaysHours,
+					fmt.Sprintf("%v h", userData.NumWorkHours),
+					fmt.Sprintf("%v h", userData.NumWeekendHours),
+					fmt.Sprintf("%v h", userData.NumBankHolidaysHours),
 					tr(fmt.Sprintf("%s%v", r.currency, userData.TotalAmountWorkHours)),
 					tr(fmt.Sprintf("%s%v", r.currency, userData.TotalAmountWeekendHours)),
 					tr(fmt.Sprintf("%s%v", r.currency, userData.TotalAmountBankHolidaysHours)),
 					tr(fmt.Sprintf("%s%v", r.currency, userData.TotalAmount))),
+				"", 0, "L", false, 0, "")
+			pdf.Ln(3)
+			pdf.CellFormat(0, 5,
+				fmt.Sprintf(matrixRowFormat, "_______________________",
+					fmt.Sprintf("%.1f d", userData.NumWorkDays),
+					fmt.Sprintf("%.1f d", userData.NumWeekendDays),
+					fmt.Sprintf("%.1f d", userData.NumBankHolidaysDays),
+					"__________", "__________", "_____________", "_________"),
 				"", 0, "L", false, 0, "")
 			pdf.Ln(5)
 		}
@@ -90,18 +113,36 @@ func (r *pdfReport) GenerateReport(data *PrintableData) (string, error) {
 	pdf.Ln(3)
 	pdf.CellFormat(0, 5,
 		fmt.Sprintf(matrixRowFormat, "", "HOURS", "HOURS", "HOURS", "AMOUNT", "AMOUNT", "AMOUNT", "AMOUNT"),
+		"", 0, "L", false, 0, "")
+	pdf.Ln(3)
+	pdf.CellFormat(0, 5,
+		fmt.Sprintf(matrixRowFormat, "", "DAYS", "DAYS", "DAYS", "", "", "", ""),
 		"B", 0, "L", false, 0, "")
 	pdf.Ln(5)
+
+	sort.Slice(data.UsersSchedulesSummary, func(i, j int) bool {
+		return strings.Compare(data.UsersSchedulesSummary[i].Name, data.UsersSchedulesSummary[j].Name) < 1
+	})
 
 	pdf.SetFont("Courier", "", 9)
 	for _, userData := range data.UsersSchedulesSummary {
 		pdf.CellFormat(0, 5,
 			fmt.Sprintf(matrixRowFormat, tr(userData.Name),
-				userData.NumWorkHours, userData.NumWeekendHours, userData.NumBankHolidaysHours,
+				fmt.Sprintf("%v h", userData.NumWorkHours),
+				fmt.Sprintf("%v h", userData.NumWeekendHours),
+				fmt.Sprintf("%v h", userData.NumBankHolidaysHours),
 				tr(fmt.Sprintf("%s%v", r.currency, userData.TotalAmountWorkHours)),
 				tr(fmt.Sprintf("%s%v", r.currency, userData.TotalAmountWeekendHours)),
 				tr(fmt.Sprintf("%s%v", r.currency, userData.TotalAmountBankHolidaysHours)),
 				tr(fmt.Sprintf("%s%v", r.currency, userData.TotalAmount))),
+			"", 0, "L", false, 0, "")
+		pdf.Ln(3)
+		pdf.CellFormat(0, 5,
+			fmt.Sprintf(matrixRowFormat, "_______________________",
+				fmt.Sprintf("%.1f d", userData.NumWorkDays),
+				fmt.Sprintf("%.1f d", userData.NumWeekendDays),
+				fmt.Sprintf("%.1f d", userData.NumBankHolidaysDays),
+				"__________", "__________", "_____________", "_________"),
 			"", 0, "L", false, 0, "")
 		pdf.Ln(5)
 	}

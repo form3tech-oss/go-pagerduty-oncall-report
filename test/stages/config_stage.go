@@ -37,14 +37,17 @@ func (s *ConfigStage) And() *ConfigStage {
 func (s *ConfigStage) AValidConfiguration() *ConfigStage {
 	s.configRaw = []byte(`
 pdAuthToken: abcdefghijklm
-rotationStartHour: 08:00:00
-currency: £
+rotationInfo:
+  dailyRotationStartsAt: 8
+  checkRotationChangeEvery: 30 # minutes
 rotationPrices:
-  - type: weekday
+  currency: £
+  daysInfo:
+  - day: weekday
     price: 1
-  - type: weekend
+  - day: weekend
     price: 1
-  - type: bankholiday
+  - day: bankholiday
     price: 2
 rotationUsers:
   - name: "User 1"
@@ -64,22 +67,29 @@ schedulesToIgnore:
 func (s *ConfigStage) AMalformedConfiguration() *ConfigStage {
 	s.configRaw = []byte(`
 pdAuthToken: abcdefghijklm
-	rotationStartHour: 08:00:00
+		rotationInfo:
+  dailyRotationStartsAt: 8
+  checkRotationChangeEvery: 30 # minutes
+	rotationPrices:
   currency: £
-		rotationPrices:
-  	- type: weekday
-    	price: 1
-  - type: weekend
+  	daysInfo:
+  - day: weekday
     price: 1
-  	- type: bankholiday
+  - day: weekend
+    price: 1
+  - day: bankholiday
     price: 2
-	rotationUsers:
-  - 	name: "User 1"
+rotationUsers:
+  - name: "User 1"
     holidaysCalendar: uk
     userId: ABCDEF1
   - name: "User 2"
     holidaysCalendar: uk
     userId: ABCDEF2
+schedulesToIgnore:
+  - SCHED_1
+  - SCHED_2
+  - SCHED_3
 `)
 	return s
 }

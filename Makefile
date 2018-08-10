@@ -5,14 +5,13 @@ OS=$(shell uname -s)
 
 export PATH := ./bin:$(PATH)
 
-# Install all the build and lint dependencies
+# Install all the build dependencies
 setup:
 	go get -u golang.org/x/tools/cmd/stringer
 	go get -u golang.org/x/tools/cmd/cover
 	go get -u golang.org/x/tools/cmd/goimports
 	go get -u github.com/GeertJohan/go.rice
 	go get -u github.com/GeertJohan/go.rice/rice
-	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh
 ifeq ($(OS), Darwin)
 	brew install dep
 else
@@ -50,15 +49,11 @@ vet:
 	fi
 .PHONY: vet
 
-lint:
-	./bin/golangci-lint run --tests=false --enable-all --disable=lll ./...
-.PHONY: lint
-
 embed-assets:
 	rice -v -i ./configuration embed-go
 .PHONY: embed-assets
 
-ci: test vet lint
+ci: test vet
 .PHONY: ci
 
 # Show to-do items per file.

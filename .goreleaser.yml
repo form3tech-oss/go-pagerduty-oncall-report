@@ -20,14 +20,14 @@ archive:
 brew:
   name: pd-report
   github:
-    owner: rogersole
+    owner: form3tech-oss
     name: homebrew-tap
   folder: Formula
   commit_author:
-    name: rogersole
-    email: roger.sole@gmail.com
+    name: RogerSoleForm3
+    email: roger.sole@form3.tech
 
-  homepage: "https://github.com/rogersole/go-pagerduty-oncall-report/"
+  homepage: "https://github.com/form3tech-oss/go-pagerduty-oncall-report/"
   description: "Get a report of oncall rotations from your PagerDuty account"
 
 git:

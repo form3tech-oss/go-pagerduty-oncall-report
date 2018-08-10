@@ -5,9 +5,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/rogersole/go-pagerduty-oncall-report/api"
-	"github.com/rogersole/go-pagerduty-oncall-report/configuration"
-	"github.com/rogersole/go-pagerduty-oncall-report/report"
+	"github.com/form3tech-oss/go-pagerduty-oncall-report/api"
+	"github.com/form3tech-oss/go-pagerduty-oncall-report/configuration"
+	"github.com/form3tech-oss/go-pagerduty-oncall-report/report"
 	"github.com/spf13/cobra"
 )
 

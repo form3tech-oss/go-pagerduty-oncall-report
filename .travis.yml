@@ -1,21 +1,20 @@
-#sudo: required
 language: go
 go: '1.10'
 install:
-  - make setup
+- make setup
 script:
-  - make ci
+- make ci
 after_success:
-  - make embed-assets
-  - bash <(curl -s https://codecov.io/bash)
+- make embed-assets
+- bash <(curl -s https://codecov.io/bash)
 notifications:
   email: false
 deploy:
-  - provider: script
-    skip_cleanup: true
-    script: curl -sL http://git.io/goreleaser | bash
-    on:
-      tags: true
+- provider: script
+  skip_cleanup: true
+  script: curl -sL http://git.io/goreleaser | bash
+  on:
+    tags: true
 env:
   global:
-  - secure: kY0KPk2/p3iJWxhdXZAL9TIGSr5aEqenxDIXXK6x7MO3JDyUYjOWq//x8s06qwrw9K/NHTJs7wZqPoGj/hHG89cWCHkeNMJc6IfGwlKtwV1R9qlNSzmHYaNRlJErqF60RtEFeVt9VubqEZ2uCLrp1jlbtKb1peGZiGIjbtgtjcbnEVRwUI9byNKp3iIYKt0gLP8opaAzEb/vdCiMPm1sKhK/gpi8KgO77z1KJ4sQtBQ7vh9/t9i9jz+uJ2A9WPF69ErNZrzsaQ+6Xy1pE1NKakl6mIXnMugbYbdg6L5zKCMb/r8CXRWBBiKcSmBQ8rXdCG+DS6ojX4/+gHW3w6T5oLr8ZhbNKGZL5JtLiot7Qp8vnfREqDPrOXOhMSjOt//GtLu/QtzOfppic2ttJDSV8EIiSLMOpuz/dAbGLaA+WANTqgXUn0D0PzKEzcNUbf5uEibj3uJ3wP0q6o4DW/PMYSVzoOrKKn6I3VVrTOHWmjAhOrLmgARzmfE0YkjRctp/Hnk2Pwq+CT8gG2lpOhsRl9fghm6GWddiVVqSmYO535pih12HfjTjdcczw9vcQykQ4Xy3vH46XK/nwO5i6ZzYjDsuuIKaMQzcb5FRb6GpQpB9exM7n4z+N99fodwz52HU9Mi1AeQAJj3Jtp8ikAeEypAogilecRjlDI+MCaNribI=
+    secure: TABQmooYR7glJgMksfjvZVf+uaRBONHSfRMPFJV723ENnlfnMUAhLcCAr7J5LHdj4DJzZURLAj7dLXJMqHBePG7jIJR82QdXnjYfDxCQsc1HB4pH1aD5G2VY8I3qJXMf0kkIV5PyHCZkXYy7KG5b7//Sn5pnZT2/hcHNguUdTWI3Ml9JtiIWuKC8aQF+/30ohoRnPeB3sWx8xeuosKFMdzoQgYuoK9yPZcFcZmXA7vbhZcqZfHEjigZ89dnOI0B2wHqmEeH9rbNcU9+AsgPv+hQBTzKgaM5VP6zUfnfX2nnkRc2HX6kMdbrbTq027eq22SMhbCJaebB48J0AhcSo7HqOZuz+tlwxtXoU12cxZWQZOQ5f9OpogSClfMA0KipeXvdyDIwzJtiOmxaaeNbJWw9lVcAptDX5aCPoW3on1qQsW83mEPXqrTRJJdk7NxSr9jnvV/qiA7NnNQ7eRITi4owteRaTw3q4F8kcZip9hzfJPwVnSA6P6Vki8gQuF88Q+kXCiwj1eTNyakBFpFzZ9aJkEn4AcMjMd7t33TN+DcUf5o/b7edUO7q2Pn5yYFMsrKuXrkGFuNeOiTrCEn1XSfqhhqwX0s23wwMcGzIE+SIqmzCCx7w1WocpH37v7vb6Ajt0hTC4khSFet8pO+YISIh6hLspmbU1tRuvBZR93Bc=

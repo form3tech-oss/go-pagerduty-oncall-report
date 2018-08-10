@@ -7,7 +7,7 @@ Generate a report for the oncall rotation using PagerDuty API
 Using homebrew
 
 ```bash
-brew tap rogersole/tap
+brew tap form3tech-oss/tap
 brew install pd-report
 ```
 

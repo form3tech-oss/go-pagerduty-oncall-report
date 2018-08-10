@@ -3,7 +3,7 @@ package test
 import (
 	"testing"
 
-	"github.com/rogersole/go-pagerduty-oncall-report/test/stages"
+	"github.com/form3tech-oss/go-pagerduty-oncall-report/test/stages"
 )
 
 func TestFindExistingPriceByDay(t *testing.T) {

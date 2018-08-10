@@ -5,7 +5,7 @@ import (
 
 	"bytes"
 
-	"github.com/rogersole/go-pagerduty-oncall-report/configuration"
+	"github.com/form3tech-oss/go-pagerduty-oncall-report/configuration"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

@@ -1,6 +1,6 @@
 package main
 
-import "github.com/rogersole/go-pagerduty-oncall-report/cmd"
+import "github.com/form3tech-oss/go-pagerduty-oncall-report/cmd"
 
 func main() {
 	cmd.Execute()

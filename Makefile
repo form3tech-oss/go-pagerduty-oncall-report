@@ -7,6 +7,7 @@ export PATH := ./bin:$(PATH)
 
 # Install all the build dependencies
 setup:
+	go get -u golang.org/x/text
 	go get -u golang.org/x/tools/cmd/stringer
 	go get -u golang.org/x/tools/cmd/cover
 	go get -u golang.org/x/tools/cmd/goimports

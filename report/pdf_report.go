@@ -3,6 +3,7 @@ package report
 import (
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"sort"
@@ -10,7 +11,6 @@ import (
 	"strings"
 
 	"github.com/jung-kurt/gofpdf"
-	"github.com/mitchellh/go-homedir"
 )
 
 const (
@@ -19,17 +19,24 @@ const (
 
 type pdfReport struct {
 	currency string
+	outPath string
 }
 
-func NewPDFReport(currency string) Writer {
+func NewPDFReport(currency string, outPath string) Writer {
 	return &pdfReport{
 		currency: currency,
+		outPath: outPath,
 	}
 }
 
 func (r *pdfReport) GenerateReport(data *PrintableData) (string, error) {
 
 	log.Println("Generating pdf report...")
+	log.Println("  -> Schedules:")
+	for _, item := range data.SchedulesData {
+		log.Printf("  %s\n", item.Name)
+	}
+
 	pdf := gofpdf.New("P", "mm", "A4", "")
 	tr := pdf.UnicodeTranslatorFromDescriptor("")
 
@@ -147,8 +154,9 @@ func (r *pdfReport) GenerateReport(data *PrintableData) (string, error) {
 		pdf.Ln(5)
 	}
 
-	dir, _ := homedir.Dir()
-	filename := fmt.Sprintf("%s/pagerduty_oncall_report.%d-%d.pdf", dir, data.Start.Month(), data.Start.Year())
+	filename := fmt.Sprintf("%s/pagerduty_oncall_report.%d-%d.pdf", r.outPath, data.Start.Month(), data.Start.Year())
+	_ = os.Remove(filename)
+
 	err := pdf.OutputFileAndClose(filename)
 	if err != nil {
 		return "", err

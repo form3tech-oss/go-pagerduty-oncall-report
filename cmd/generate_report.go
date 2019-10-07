@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/mitchellh/go-homedir"
 	"log"
 	"time"
 
@@ -21,11 +22,13 @@ var (
 
 	schedules    []string
 	outputFormat string
+	directory    string
 )
 
 func init() {
 	scheduleReportCmd.Flags().StringSliceVarP(&schedules, "schedules", "s", []string{"all"}, "schedule ids to report (comma-separated with no spaces), or 'all'")
 	scheduleReportCmd.Flags().StringVarP(&outputFormat, "output-format", "o", "console", "pdf, console")
+	scheduleReportCmd.Flags().StringVarP(&directory, "output", "d", "", "output path (default is $HOME)")
 	rootCmd.AddCommand(scheduleReportCmd)
 }
 
@@ -50,7 +53,9 @@ func processArguments() InputData {
 		log.Printf("output format %s not supported. Defaulting to 'console'", outputFormat)
 		outputFormat = "console"
 	}
-
+	if directory == "" {
+		directory, _ = homedir.Dir()
+	}
 	now := time.Now()
 	lastMonth := now.AddDate(0, -1, 0)
 	startDate := time.Date(lastMonth.Year(), lastMonth.Month(), 1, 0, 0, 0, 0, time.UTC)
@@ -124,7 +129,7 @@ func generateReport(cmd *cobra.Command, args []string) error {
 
 	var reportWriter report.Writer
 	if outputFormat == "pdf" {
-		reportWriter = report.NewPDFReport(Config.RotationPrices.Currency)
+		reportWriter = report.NewPDFReport(Config.RotationPrices.Currency, directory)
 	} else {
 		reportWriter = report.NewConsoleReport(Config.RotationPrices.Currency)
 	}

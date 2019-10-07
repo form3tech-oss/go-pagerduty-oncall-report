@@ -6,3 +6,4 @@ rice-box.go
 pd-report
 .pd-report-config.yml
 .idea
+**/.DS_Store

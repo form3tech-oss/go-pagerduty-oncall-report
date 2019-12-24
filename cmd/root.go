@@ -6,9 +6,9 @@ import (
 
 	"log"
 
-	"github.com/mitchellh/go-homedir"
 	"github.com/form3tech-oss/go-pagerduty-oncall-report/api"
 	"github.com/form3tech-oss/go-pagerduty-oncall-report/configuration"
+	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

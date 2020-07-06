@@ -8,7 +8,7 @@ build:
 	go build -o pd-report
 .PHONY: build
 
-test:
+test: build
 	go test $(TEST_OPTIONS) -v -failfast -race -coverpkg=./... -covermode=atomic -coverprofile=coverage.out $(SOURCE_FILES) -run $(TEST_PATTERN) -timeout=2m
 .PHONY: test
 

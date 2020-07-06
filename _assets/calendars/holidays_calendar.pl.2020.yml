@@ -1,0 +1,26 @@
+# According to https://www.officeholidays.com/countries/poland/index.php
+---
+- title: "New Year's Day"
+  date: 01/01/2020
+- title: "Three Kings' Day"
+  date: 06/01/2020
+- title: "Easter"
+  date: 12/04/2020
+- title: "Easter Monday"
+  date: 13/04/2020
+- title: "Labour Day"
+  date: 01/05/2020
+- title: "Constitution Day"
+  date: 03/05/2020
+- title: "Corpus Christi"
+  date: 11/06/2020
+- title: "Assumption Day"
+  date: 15/08/2020
+- title: "All Saints' Day"
+  date: 01/11/2020
+- title: "Independence Day"
+  date: 11/11/2020
+- title: "Christmas Day"
+  date: 25/12/2020
+- title: "St. Stephen's Day"
+  date: 26/12/2020

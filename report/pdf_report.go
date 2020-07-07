@@ -19,13 +19,13 @@ const (
 
 type pdfReport struct {
 	currency string
-	outPath string
+	outPath  string
 }
 
 func NewPDFReport(currency string, outPath string) Writer {
 	return &pdfReport{
 		currency: currency,
-		outPath: outPath,
+		outPath:  outPath,
 	}
 }
 

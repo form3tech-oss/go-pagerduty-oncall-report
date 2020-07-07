@@ -27,7 +27,7 @@ var (
 
 func init() {
 	scheduleReportCmd.Flags().StringSliceVarP(&schedules, "schedules", "s", []string{"all"}, "schedule ids to report (comma-separated with no spaces), or 'all'")
-	scheduleReportCmd.Flags().StringVarP(&outputFormat, "output-format", "o", "console", "pdf, console")
+	scheduleReportCmd.Flags().StringVarP(&outputFormat, "output-format", "o", "console", "pdf, console, csv")
 	scheduleReportCmd.Flags().StringVarP(&directory, "output", "d", "", "output path (default is $HOME)")
 	rootCmd.AddCommand(scheduleReportCmd)
 }
@@ -49,7 +49,7 @@ func contains(s []string, e string) bool {
 
 func processArguments() InputData {
 
-	if !contains([]string{"console", "pdf"}, outputFormat) {
+	if !contains([]string{"console", "pdf", "csv"}, outputFormat) {
 		log.Printf("output format %s not supported. Defaulting to 'console'", outputFormat)
 		outputFormat = "console"
 	}
@@ -130,6 +130,8 @@ func generateReport(cmd *cobra.Command, args []string) error {
 	var reportWriter report.Writer
 	if outputFormat == "pdf" {
 		reportWriter = report.NewPDFReport(Config.RotationPrices.Currency, directory)
+	} else if outputFormat == "csv" {
+		reportWriter = report.NewCsvReport(Config.RotationPrices.Currency, directory)
 	} else {
 		reportWriter = report.NewConsoleReport(Config.RotationPrices.Currency)
 	}
@@ -144,15 +146,15 @@ func generateReport(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func calculateSummaryData(data []*report.ScheduleData, pricesInfo *PricesInfo) []*report.UserSchedulesSummary {
+func calculateSummaryData(data []*report.ScheduleData, pricesInfo *PricesInfo) []*report.ScheduleUser {
 
-	usersSummary := make(map[string]*report.UserSchedulesSummary)
+	usersSummary := make(map[string]*report.ScheduleUser)
 
 	for _, schedData := range data {
 		for _, schedUser := range schedData.RotaUsers {
 			userSummary, ok := usersSummary[schedUser.Name]
 			if !ok {
-				userSummary = &report.UserSchedulesSummary{
+				userSummary = &report.ScheduleUser{
 					Name: schedUser.Name,
 				}
 				usersSummary[schedUser.Name] = userSummary
@@ -168,7 +170,7 @@ func calculateSummaryData(data []*report.ScheduleData, pricesInfo *PricesInfo) [
 		}
 	}
 
-	result := make([]*report.UserSchedulesSummary, 0)
+	result := make([]*report.ScheduleUser, 0)
 	for _, userSummary := range usersSummary {
 		userSummary.NumWorkDays = userSummary.NumWorkHours / float32(pricesInfo.HoursWeekDay)
 		userSummary.NumWeekendDays = userSummary.NumWeekendHours / float32(pricesInfo.HoursWeekendDay)

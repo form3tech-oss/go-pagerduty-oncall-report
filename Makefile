@@ -3,30 +3,12 @@ TEST_PATTERN?=.
 TEST_OPTIONS?=
 OS=$(shell uname -s)
 
-export PATH := ./bin:$(PATH)
-
-# Install all the build dependencies
-setup:
-	go get -u golang.org/x/text
-	go get -u golang.org/x/tools/cmd/stringer
-	go get -u golang.org/x/tools/cmd/cover
-	go get -u golang.org/x/tools/cmd/goimports
-	go get -u github.com/GeertJohan/go.rice
-	go get -u github.com/GeertJohan/go.rice/rice
-ifeq ($(OS), Darwin)
-	brew install dep
-else
-	curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-endif
-	dep ensure -vendor-only
-.PHONY: setup
-
 build:
 	go generate ./...
 	go build -o pd-report
 .PHONY: build
 
-test:
+test: build
 	go test $(TEST_OPTIONS) -v -failfast -race -coverpkg=./... -covermode=atomic -coverprofile=coverage.out $(SOURCE_FILES) -run $(TEST_PATTERN) -timeout=2m
 .PHONY: test
 

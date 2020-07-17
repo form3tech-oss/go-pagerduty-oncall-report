@@ -43,7 +43,7 @@ Use "pd-report [command] --help" for more information about a command.
 
   Flags:
     -h, --help                   help for report
-    -o, --output-format string   pdf, console (default "console")
+    -o, --output-format string   pdf, console, csv (default "console")
     -d  --output string          filepath output path (default is $HOME)
     -s, --schedules strings      schedule ids to report (comma-separated with no spaces), or 'all' (default [all])
 

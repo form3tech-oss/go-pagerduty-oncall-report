@@ -61,6 +61,11 @@ func (r *pdfReport) GenerateReport(data *PrintableData) (string, error) {
 			"L", 0, "L", false, 0, "")
 		pdf.Ln(8)
 
+		pdf.CellFormat(0, 5,
+			fmt.Sprintf("Time Range: %s to %s", scheduleData.StartDate.Format(time.RFC822), scheduleData.EndDate.Format(time.RFC822)),
+			"L", 0, "L", false, 0, "")
+		pdf.Ln(8)
+
 		pdf.SetFont("Courier", "B", 9)
 		pdf.CellFormat(0, 5,
 			fmt.Sprintf(matrixRowFormat, "USER", "WEEKDAY", "WEEKEND", "B. HOLIDAY", "WEEKDAY", "WEEKEND", "B. HOLIDAY", "TOTAL"),

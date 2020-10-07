@@ -80,6 +80,7 @@ func (r *csvReport) GenerateReport(data *PrintableData) (string, error) {
 func (r *csvReport) writeSingleRotation(scheduleData *ScheduleData, data *PrintableData, header []string) error {
 	fmt.Println(separator)
 	fmt.Println(fmt.Sprintf("| Writing Schedule: '%s' (%s)", scheduleData.Name, scheduleData.ID))
+	fmt.Println(fmt.Sprintf("| Time Range: %s to %s", scheduleData.StartDate.Format(time.RFC822), scheduleData.EndDate.Format(time.RFC822)))
 	fmt.Println(separator)
 	noSpaceName := strings.Replace(scheduleData.Name, " ", "_", -1)
 

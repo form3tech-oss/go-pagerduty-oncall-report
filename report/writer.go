@@ -14,6 +14,8 @@ type PrintableData struct {
 type ScheduleData struct {
 	ID        string
 	Name      string
+	StartDate time.Time
+	EndDate   time.Time
 	RotaUsers []*ScheduleUser
 }
 

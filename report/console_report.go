@@ -33,6 +33,7 @@ func (r *consoleReport) GenerateReport(data *PrintableData) (string, error) {
 		fmt.Println(blankLine)
 		fmt.Println(separator)
 		fmt.Println(fmt.Sprintf("| Schedule: '%s' (%s)", scheduleData.Name, scheduleData.ID))
+		fmt.Println(fmt.Sprintf("| Time Range: %s to %s", scheduleData.StartDate.Format(time.RFC822), scheduleData.EndDate.Format(time.RFC822)))
 		fmt.Println(separator)
 		fmt.Println(fmt.Sprintf(rowFormat, "USER", "WEEKDAY", "WEEKEND", "BANK HOLIDAY", "TOTAL WEEKDAY", "TOTAL WEEKEND", "TOTAL BANK HOLIDAY", "TOTAL"))
 		fmt.Println(fmt.Sprintf(rowFormat, "", "HOURS", "HOURS", "HOURS", "AMOUNT", "AMOUNT", "AMOUNT", "AMOUNT"))

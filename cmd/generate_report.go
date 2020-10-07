@@ -20,20 +20,20 @@ var (
 		RunE:  generateReport,
 	}
 
-	schedules    []string
+	rawSchedules []string
 	outputFormat string
 	directory    string
 )
 
 func init() {
-	scheduleReportCmd.Flags().StringSliceVarP(&schedules, "schedules", "s", []string{"all"}, "schedule ids to report (comma-separated with no spaces), or 'all'")
+	scheduleReportCmd.Flags().StringSliceVarP(&rawSchedules, "schedules", "s", []string{"all"}, "schedule ids to report (comma-separated with no spaces), or 'all'")
 	scheduleReportCmd.Flags().StringVarP(&outputFormat, "output-format", "o", "console", "pdf, console, csv")
 	scheduleReportCmd.Flags().StringVarP(&directory, "output", "d", "", "output path (default is $HOME)")
 	rootCmd.AddCommand(scheduleReportCmd)
 }
 
-type InputData struct {
-	schedules []string
+type Schedule struct {
+	id        string
 	startDate time.Time
 	endDate   time.Time
 }
@@ -47,7 +47,7 @@ func contains(s []string, e string) bool {
 	return false
 }
 
-func processArguments() InputData {
+func processArguments() []Schedule {
 
 	if !contains([]string{"console", "pdf", "csv"}, outputFormat) {
 		log.Printf("output format %s not supported. Defaulting to 'console'", outputFormat)
@@ -58,40 +58,131 @@ func processArguments() InputData {
 	}
 	now := time.Now()
 	lastMonth := now.AddDate(0, -1, 0)
-	startDate := time.Date(lastMonth.Year(), lastMonth.Month(), 1, 0, 0, 0, 0, time.UTC)
-	endDate := startDate.AddDate(0, 1, 0)
-	endDate = endDate.Add(time.Hour * time.Duration(Config.RotationInfo.DailyRotationStartsAt))
-	log.Printf("startDate: %s, endDate: %s", startDate, endDate)
 
-	if len(schedules) == 1 && schedules[0] == "all" {
-		schedules = []string{}
+	var defaultStartDate time.Time
+	if Config.ReportTimeRange.Start != "" {
+		var err error
+		defaultStartDate, err = time.Parse(time.RFC822, Config.ReportTimeRange.Start)
+		if err != nil {
+			log.Fatalf("Error parsing report start time: %s", err)
+		}
+	} else {
+		defaultStartDate = time.Date(lastMonth.Year(), lastMonth.Month(), 1, 0, 0, 0, 0, time.UTC)
+	}
+
+	var defaultEndDate time.Time
+	if Config.ReportTimeRange.End != "" {
+		var err error
+		defaultEndDate, err = time.Parse(time.RFC822, Config.ReportTimeRange.End)
+		if err != nil {
+			log.Fatalf("Error parsing report end time: %s", err)
+		}
+	} else {
+		defaultEndDate = defaultStartDate.AddDate(0, 1, 0)
+		defaultEndDate = defaultEndDate.Add(time.Hour * time.Duration(Config.RotationInfo.DailyRotationStartsAt))
+	}
+
+	startOverrides := make(map[string]time.Time)
+	endOverrides := make(map[string]time.Time)
+
+	for _, override := range Config.ScheduleTimeRangeOverrides {
+		var err error
+		startOverrides[override.Id], err = time.Parse(time.RFC822, override.Start)
+		if err != nil {
+			log.Fatalf("Error parsing start time override for schedule %s: %v", override.Id, err)
+		}
+		endOverrides[override.Id], err = time.Parse(time.RFC822, override.End)
+		if err != nil {
+			log.Fatalf("Error parsing end time override for schedule %s: %v", override.Id, err)
+		}
+	}
+
+	schedules := make([]Schedule, 0)
+	if len(rawSchedules) == 1 && rawSchedules[0] == "all" {
 		schedulesList, err := api.Client.ListSchedules()
 		if err != nil {
 			log.Fatalln(fmt.Sprintf("Error getting the schedules list: %s", err.Error()))
 		}
+
 		for _, schedule := range schedulesList {
 			if !Config.IsScheduleIDToIgnore(schedule.ID) {
-				schedules = append(schedules, schedule.ID)
+				var thisStartDate time.Time
+				if _, ok := startOverrides[schedule.ID]; ok {
+					thisStartDate = startOverrides[schedule.ID]
+				} else {
+					thisStartDate = defaultStartDate
+				}
+
+				var thisEndDate time.Time
+				if _, ok := endOverrides[schedule.ID]; ok {
+					thisEndDate = endOverrides[schedule.ID]
+				} else {
+					thisEndDate = defaultEndDate
+				}
+
+				schedules = append(schedules, Schedule{
+					id:        schedule.ID,
+					startDate: thisStartDate,
+					endDate:   thisEndDate,
+				})
+
+				log.Printf("[%s] defaultStartDate: %s, defaultEndDate: %s", schedule.ID, thisStartDate, thisEndDate)
+
 			} else {
 				log.Println(fmt.Sprintf("Ignoring schedule '%s'", schedule.ID))
 			}
 		}
+	} else {
+		for _, schedule := range rawSchedules {
+			if !Config.IsScheduleIDToIgnore(schedule) {
+				var thisStartDate time.Time
+				if _, ok := startOverrides[schedule]; ok {
+					thisStartDate = startOverrides[schedule]
+				} else {
+					thisStartDate = defaultStartDate
+				}
+
+				var thisEndDate time.Time
+				if _, ok := endOverrides[schedule]; ok {
+					thisEndDate = endOverrides[schedule]
+				} else {
+					thisEndDate = defaultEndDate
+				}
+
+				schedules = append(schedules, Schedule{
+					id:        schedule,
+					startDate: thisStartDate,
+					endDate:   thisEndDate,
+				})
+
+				log.Printf("[%s] defaultStartDate: %s, defaultEndDate: %s", schedule, thisStartDate, thisEndDate)
+			} else {
+				log.Fatal("Configuration explicitly ignores schedule passed as parameter - check your config.")
+			}
+		}
 	}
 
-	return InputData{
-		schedules: schedules,
-		startDate: startDate,
-		endDate:   endDate,
-	}
+	return schedules
 }
 
 func generateReport(cmd *cobra.Command, args []string) error {
 	input := processArguments()
 
-	configuration.LoadCalendars(input.startDate.Year())
+	firstStartDate := time.Now()
+	lastEndDate := time.Time{}
+	for _, schedule := range input {
+		if schedule.startDate.Before(firstStartDate) {
+			firstStartDate = schedule.startDate
+		}
+
+		if schedule.endDate.After(lastEndDate) {
+			lastEndDate = schedule.endDate
+		}
+	}
+	configuration.LoadCalendars(firstStartDate.Year())
 	printableData := &report.PrintableData{
-		Start:         input.startDate,
-		End:           input.endDate,
+		Start:         firstStartDate,
+		End:           lastEndDate,
 		SchedulesData: make([]*report.ScheduleData, 0),
 	}
 
@@ -104,9 +195,9 @@ func generateReport(cmd *cobra.Command, args []string) error {
 		Config.RotationPrices.Currency, pricesInfo.WeekDayHourlyPrice, pricesInfo.HoursWeekDay, pricesInfo.WeekendDayHourlyPrice,
 		pricesInfo.HoursWeekendDay, pricesInfo.BhDayHourlyPrice, pricesInfo.HoursBhDay))
 
-	for _, scheduleID := range input.schedules {
-		log.Printf("Loading information for the schedule '%s'", scheduleID)
-		scheduleInfo, err := getScheduleInformation(scheduleID, input.startDate, input.endDate)
+	for _, schedule := range input {
+		log.Printf("Loading information for the schedule '%s'", schedule.id)
+		scheduleInfo, err := getScheduleInformation(schedule.id, schedule.startDate, schedule.endDate)
 		if err != nil {
 			return err
 		}
@@ -116,7 +207,7 @@ func generateReport(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		scheduleData, err := generateScheduleData(scheduleInfo, usersRotationData, pricesInfo)
+		scheduleData, err := generateScheduleData(scheduleInfo, usersRotationData, pricesInfo, schedule)
 		if err != nil {
 			return err
 		}
@@ -235,11 +326,13 @@ func getUsersRotationData(scheduleInfo *api.ScheduleInfo) (api.ScheduleUserRotat
 }
 
 func generateScheduleData(scheduleInfo *api.ScheduleInfo, usersRotationData api.ScheduleUserRotationData,
-	pricesInfo *PricesInfo) (*report.ScheduleData, error) {
+	pricesInfo *PricesInfo, schedule Schedule) (*report.ScheduleData, error) {
 
 	scheduleData := &report.ScheduleData{
 		ID:        scheduleInfo.ID,
 		Name:      scheduleInfo.Name,
+		StartDate: schedule.startDate,
+		EndDate:   schedule.endDate,
 		RotaUsers: make([]*report.ScheduleUser, 0),
 	}
 

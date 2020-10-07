@@ -19,13 +19,13 @@ const (
 
 type pdfReport struct {
 	currency string
-	outPath string
+	outPath  string
 }
 
 func NewPDFReport(currency string, outPath string) Writer {
 	return &pdfReport{
 		currency: currency,
-		outPath: outPath,
+		outPath:  outPath,
 	}
 }
 
@@ -58,6 +58,11 @@ func (r *pdfReport) GenerateReport(data *PrintableData) (string, error) {
 		pdf.SetFont("Arial", "B", 13)
 		pdf.CellFormat(0, 5,
 			fmt.Sprintf("  Schedule: '%s' (%s)", scheduleData.Name, scheduleData.ID),
+			"L", 0, "L", false, 0, "")
+		pdf.Ln(8)
+
+		pdf.CellFormat(0, 5,
+			fmt.Sprintf("Time Range: %s to %s", scheduleData.StartDate.Format(time.RFC822), scheduleData.EndDate.Format(time.RFC822)),
 			"L", 0, "L", false, 0, "")
 		pdf.Ln(8)
 

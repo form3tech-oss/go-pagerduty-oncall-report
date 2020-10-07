@@ -12,21 +12,23 @@ builds:
     env:
       - CGO_ENABLED=0
 
-archive:
-  format: tar.gz
-  files:
-    - LICENSE
+archives:
+  -
+    format: tar.gz
+    files:
+      - LICENSE
 
-brew:
-  name: pd-report
-  github:
-    owner: form3tech-oss
-    name: homebrew-tap
-  folder: Formula
-  commit_author:
-    name: AntonioRodrigues
-    email: roger.sole@form3.tech
+brews:
+  -
+    name: pd-report
+    github:
+      owner: form3tech-oss
+      name: homebrew-tap
+    folder: Formula
+    commit_author:
+      name: AntonioRodrigues
+      email: roger.sole@form3.tech
 
-  homepage: "https://github.com/form3tech-oss/go-pagerduty-oncall-report/"
-  description: "Get a report of oncall rotations from your PagerDuty account"
+    homepage: "https://github.com/form3tech-oss/go-pagerduty-oncall-report/"
+    description: "Get a report of oncall rotations from your PagerDuty account"
 

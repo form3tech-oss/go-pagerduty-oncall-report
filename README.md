@@ -43,7 +43,7 @@ Use "pd-report [command] --help" for more information about a command.
 
   Flags:
     -h, --help                   help for report
-    -o, --output-format string   pdf, console (default "console")
+    -o, --output-format string   pdf, console, csv (default "console")
     -d  --output string          filepath output path (default is $HOME)
     -s, --schedules strings      schedule ids to report (comma-separated with no spaces), or 'all' (default [all])
 
@@ -58,6 +58,11 @@ The configuration must be a `.yml` file (specified by the `--config` flag) with 
 ```yml
 # PagerDuty auth token
 pdAuthToken: 12345
+
+# Explicitly set report time range (RFC822)
+reportTimeRange:
+  start: 01 Jan 20 00:00 UTC
+  end: 01 Feb 20 00:00 UTC
 
 # Rotation general information
 rotationInfo:
@@ -94,6 +99,12 @@ rotationUsers:
   - name: "Roger Solé"
     holidaysCalendar: sp_premia
     userId: P33A33B
+
+# Time range overrides on a per-schedule basis (RFC 822)
+scheduleTimeRangeOverrides:
+  - id: ABCDEFG
+    start: 01 Jan 20 00:00 UTC
+    end: 21 Jan 20 00:00 UTC
 
 # List of schedule IDs that can be ignored when generating the report
 schedulesToIgnore:

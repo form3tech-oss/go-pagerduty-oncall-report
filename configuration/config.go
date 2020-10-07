@@ -31,13 +31,26 @@ type RotationInfo struct {
 	CheckRotationChangeEvery int
 }
 
+type ReportTimeRange struct {
+	Start string
+	End   string
+}
+
+type ScheduleTimeRange struct {
+	Id    string
+	Start string
+	End   string
+}
+
 type Configuration struct {
-	PdAuthToken           string
-	RotationInfo          RotationInfo
-	RotationExcludedHours []RotationExcludedHoursDay
-	RotationPrices        RotationPrices
-	RotationUsers         []RotationUser
-	SchedulesToIgnore     []string
+	PdAuthToken                string
+	ReportTimeRange            ReportTimeRange
+	RotationInfo               RotationInfo
+	RotationExcludedHours      []RotationExcludedHoursDay
+	RotationPrices             RotationPrices
+	RotationUsers              []RotationUser
+	ScheduleTimeRangeOverrides []ScheduleTimeRange
+	SchedulesToIgnore          []string
 
 	cacheRotationUsers  map[string]*RotationUser
 	cacheRotationPrices map[string]int

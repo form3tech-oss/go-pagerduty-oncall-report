@@ -109,6 +109,9 @@ func (c *Configuration) FindRotationUserInfoByID(userID string) (*RotationUser, 
 			return &rotationUser, nil
 		}
 	}
+	if c.DefaultHolidayCalendar == "" { // if you dont specify a default calendar fallback to old behaviour
+		return nil, fmt.Errorf("user id %s not found", userID)
+	}
 
 	user, err := api.Client.GetUserById(userID)
 	if err != nil {
@@ -119,10 +122,11 @@ func (c *Configuration) FindRotationUserInfoByID(userID string) (*RotationUser, 
 		return nil, fmt.Errorf("user id %s not found", userID)
 	}
 
+
 	rotationUser := &RotationUser{
 		UserID:           userID,
 		Name:             user.Name,
-		HolidaysCalendar: c.DefaultHolidayCalendar, // default to uk
+		HolidaysCalendar: c.DefaultHolidayCalendar, // default to config value
 	}
 
 	c.cacheRotationUsers[userID] = rotationUser

@@ -69,6 +69,8 @@ rotationInfo:
   dailyRotationStartsAt: 8
   checkRotationChangeEvery: 30 # minutes
 
+defaultHolidayCalendar: uk # default calendar to use for users not specified in config, allows you to only define users with different calendars
+
 # Rotation excluded hours by day type
 rotationExcludedHours:
   - day: weekday

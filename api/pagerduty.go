@@ -79,6 +79,11 @@ func (p *PagerDutyClient) ListUsers() ([]pagerduty.User, error) {
 	return listUsersResponse.Users, nil
 }
 
+func (p *PagerDutyClient) GetUserById(id string) (*pagerduty.User, error) {
+	return p.apiClient.GetUser(id, pagerduty.GetUserOptions{})
+}
+
+
 func (p *PagerDutyClient) GetSchedule(scheduleID, startDate, endDate string) (*pagerduty.Schedule, error) {
 	var opts pagerduty.GetScheduleOptions
 	opts.Since = startDate

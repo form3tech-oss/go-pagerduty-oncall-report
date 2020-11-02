@@ -2,6 +2,8 @@ package configuration
 
 import (
 	"fmt"
+	"github.com/form3tech-oss/go-pagerduty-oncall-report/api"
+	"log"
 )
 
 type RotationUser struct {
@@ -44,6 +46,7 @@ type ScheduleTimeRange struct {
 
 type Configuration struct {
 	PdAuthToken                string
+	DefaultHolidayCalendar     string
 	ReportTimeRange            ReportTimeRange
 	RotationInfo               RotationInfo
 	RotationExcludedHours      []RotationExcludedHoursDay
@@ -106,7 +109,26 @@ func (c *Configuration) FindRotationUserInfoByID(userID string) (*RotationUser, 
 			return &rotationUser, nil
 		}
 	}
-	return nil, fmt.Errorf("user id %s not found", userID)
+
+	user, err := api.Client.GetUserById(userID)
+	if err != nil {
+		return nil, fmt.Errorf("could not find user from pagerduty api, err: %v", err)
+	}
+
+	if user == nil {
+		return nil, fmt.Errorf("user id %s not found", userID)
+	}
+
+	rotationUser := &RotationUser{
+		UserID:           userID,
+		Name:             user.Name,
+		HolidaysCalendar: c.DefaultHolidayCalendar, // default to uk
+	}
+
+	c.cacheRotationUsers[userID] = rotationUser
+	log.Printf("defaulting user %s id: %s to %s\n", user.Name, userID, c.DefaultHolidayCalendar)
+
+	return rotationUser, nil
 }
 
 func (c *Configuration) IsScheduleIDToIgnore(scheduleID string) bool {

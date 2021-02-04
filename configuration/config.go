@@ -2,6 +2,8 @@ package configuration
 
 import (
 	"fmt"
+	"github.com/form3tech-oss/go-pagerduty-oncall-report/api"
+	"log"
 )
 
 type RotationUser struct {
@@ -31,13 +33,27 @@ type RotationInfo struct {
 	CheckRotationChangeEvery int
 }
 
+type ReportTimeRange struct {
+	Start string
+	End   string
+}
+
+type ScheduleTimeRange struct {
+	Id    string
+	Start string
+	End   string
+}
+
 type Configuration struct {
-	PdAuthToken           string
-	RotationInfo          RotationInfo
-	RotationExcludedHours []RotationExcludedHoursDay
-	RotationPrices        RotationPrices
-	RotationUsers         []RotationUser
-	SchedulesToIgnore     []string
+	PdAuthToken                string
+	DefaultHolidayCalendar     string
+	ReportTimeRange            ReportTimeRange
+	RotationInfo               RotationInfo
+	RotationExcludedHours      []RotationExcludedHoursDay
+	RotationPrices             RotationPrices
+	RotationUsers              []RotationUser
+	ScheduleTimeRangeOverrides []ScheduleTimeRange
+	SchedulesToIgnore          []string
 
 	cacheRotationUsers  map[string]*RotationUser
 	cacheRotationPrices map[string]int
@@ -93,7 +109,30 @@ func (c *Configuration) FindRotationUserInfoByID(userID string) (*RotationUser, 
 			return &rotationUser, nil
 		}
 	}
-	return nil, fmt.Errorf("user id %s not found", userID)
+	if c.DefaultHolidayCalendar == "" { // if you dont specify a default calendar fallback to old behaviour
+		return nil, fmt.Errorf("user id %s not found", userID)
+	}
+
+	user, err := api.Client.GetUserById(userID)
+	if err != nil {
+		return nil, fmt.Errorf("could not find user from pagerduty api, err: %v", err)
+	}
+
+	if user == nil {
+		return nil, fmt.Errorf("user id %s not found", userID)
+	}
+
+
+	rotationUser := &RotationUser{
+		UserID:           userID,
+		Name:             user.Name,
+		HolidaysCalendar: c.DefaultHolidayCalendar, // default to config value
+	}
+
+	c.cacheRotationUsers[userID] = rotationUser
+	log.Printf("defaulting user %s id: %s to %s\n", user.Name, userID, c.DefaultHolidayCalendar)
+
+	return rotationUser, nil
 }
 
 func (c *Configuration) IsScheduleIDToIgnore(scheduleID string) bool {

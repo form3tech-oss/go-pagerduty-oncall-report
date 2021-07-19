@@ -9,9 +9,6 @@ notifications:
 deploy:
 - provider: script
   skip_cleanup: true
-  script: curl -sL http://git.io/goreleaser | bash
+  script: bash scripts/goreleaser.sh
   on:
     tags: true
-env:
-  global:
-  - secure: Io+6Mfu9b2Y/FBUWUBzWnF3+V991ly7afCA6pG0d9IQNZUOfJyGPa3QCV2pbUeVTTsxjTH1v0n+ecOxQaigtnFCYH0/FGap///xgQcmwnCTkJs+Hxv24gWhRfzP9eGR+XOjYj5399bXHex7lSday5aAaSxq21TKG6wZMJKNwYpfh7KlcdbNBVSzuXIsILY6Vst3p7Ogd/YvtGtmlzKC5mPe7gRw9xB6RHFKCBebHmQWIKSupKoyA1Utql+suaOSnuic7OMlVLvjJNeCY1U6D5dizyugp7tpG9l/GgZE166kyc2MD8aEH6zh+STIi1u5EhQllCARsNNxhiAmqc2d6DXQczEn4Os5XCTbggPeaGH/2Xzw4fUJZsjh2CH5pun8vJryCOE9f1c+jAtt51Hp8JGc+HVNFIZv9wnhwDaqnKJm3V7tixQQOLThtlD7JbAHkrroz61zrAEWaaohSPnmv1y7XbCahs+xKgTxwjB8OUcuzRAOLEAzhKA7rYgjH+9/BarilnXzvP8BYYA7It6bGUPsrkZ5RHoX2qAVOlFlFcN9Lqk/aABrsKjY2DpQ/nUk9Aw10trHIrMwl+P5x6X7NAOOELzNRJOe3PyEvfb77C9SuAqm7D/4KXq9p1AJIcLx23ebozWy8M6HkMw+2QR2aJJUYF7HqxG5cmGhfqvWgFwA=

@@ -41,13 +41,22 @@ func InitialisePagerDutyAPIClient(authToken string) {
 }
 
 func (p *PagerDutyClient) ListSchedules() ([]pagerduty.Schedule, error) {
+	var schedules []pagerduty.Schedule
 	var opts pagerduty.ListSchedulesOptions
-	listSchedulesResponse, err := p.apiClient.ListSchedules(opts)
-	if err != nil {
-		return nil, err
+	more := true
+	for ;more; {
+		listSchedulesResponse, err := p.apiClient.ListSchedules(opts)
+		if err != nil {
+			return nil, err
+		}
+		for _, schedule := range listSchedulesResponse.Schedules {
+			schedules = append(schedules, schedule)
+		}
+		more = listSchedulesResponse.More
+		opts.Offset = listSchedulesResponse.Limit
 	}
 
-	return listSchedulesResponse.Schedules, nil
+	return schedules, nil
 }
 
 func (p *PagerDutyClient) ListServices(teamID string) ([]pagerduty.Service, error) {

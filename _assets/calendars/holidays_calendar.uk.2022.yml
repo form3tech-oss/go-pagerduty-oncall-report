@@ -1,0 +1,20 @@
+# https://www.gov.uk/bank-holidays
+---
+- title: "New Year's Day"
+  date: 03/01/2022
+- title: "Good Friday"
+  date: 15/04/2022
+- title: "Easter Monday"
+  date: 18/04/2022
+- title: "Early May"
+  date: 02/05/2022
+- title: "Spring"
+  date: 02/06/2022
+- title: "Platinum Jubilee"
+  date: 03/06/2022
+- title: "Summer"
+  date: 29/08/2022
+- title: "Christmas Day"
+  date: 26/12/2021
+- title: "Boxing Day"
+  date: 27/12/2021

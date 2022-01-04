@@ -1,0 +1,26 @@
+# According to https://www.officeholidays.com/countries/poland/index.php
+---
+- title: "New Year's Day"
+  date: 01/01/2022
+- title: "Three Kings' Day"
+  date: 06/01/2022
+- title: "Easter"
+  date: 17/04/2022
+- title: "Easter Monday"
+  date: 18/04/2022
+- title: "Labour Day"
+  date: 01/05/2022
+- title: "Constitution Day"
+  date: 03/05/2022
+- title: "Corpus Christi"
+  date: 05/06/2022
+- title: "Assumption Day"
+  date: 15/08/2022
+- title: "All Saints' Day"
+  date: 01/11/2022
+- title: "Independence Day"
+  date: 11/11/2022
+- title: "Christmas Day"
+  date: 25/12/2022
+- title: "St. Stephen's Day"
+  date: 26/12/2022

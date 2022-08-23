@@ -2,15 +2,15 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 
-	"log"
-
-	"github.com/form3tech-oss/go-pagerduty-oncall-report/api"
-	"github.com/form3tech-oss/go-pagerduty-oncall-report/configuration"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/form3tech-oss/go-pagerduty-oncall-report/api"
+	"github.com/form3tech-oss/go-pagerduty-oncall-report/configuration"
 )
 
 var (
@@ -20,7 +20,7 @@ var (
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "configuration file (default is ~/.pd-report-config.yml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "configuration file (default is ~/.pd-report-config.yml.old)")
 
 	viper.SetDefault("rotationStartHour", "08:00:00")
 	viper.SetDefault("currency", "£")

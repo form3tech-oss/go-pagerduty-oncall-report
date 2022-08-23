@@ -44,7 +44,7 @@ func (p *PagerDutyClient) ListSchedules() ([]pagerduty.Schedule, error) {
 	var schedules []pagerduty.Schedule
 	var opts pagerduty.ListSchedulesOptions
 	more := true
-	for ;more; {
+	for more {
 		listSchedulesResponse, err := p.apiClient.ListSchedules(opts)
 		if err != nil {
 			return nil, err
@@ -91,7 +91,6 @@ func (p *PagerDutyClient) ListUsers() ([]pagerduty.User, error) {
 func (p *PagerDutyClient) GetUserById(id string) (*pagerduty.User, error) {
 	return p.apiClient.GetUser(id, pagerduty.GetUserOptions{})
 }
-
 
 func (p *PagerDutyClient) GetSchedule(scheduleID, startDate, endDate string) (*pagerduty.Schedule, error) {
 	var opts pagerduty.GetScheduleOptions

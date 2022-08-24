@@ -21,6 +21,7 @@ var (
 type client interface {
 	ListUsers() ([]*api.User, error)
 	ListTeams() ([]*api.Team, error)
+	ListServices(string) ([]*api.Service, error)
 }
 
 type pagerDutyClient struct {

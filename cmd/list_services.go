@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/form3tech-oss/go-pagerduty-oncall-report/api"
+
 	"github.com/spf13/cobra"
 )
 
@@ -12,16 +13,22 @@ var listServicesCmd = &cobra.Command{
 	Short: "list services on PagerDuty",
 	Long:  "Get the list of services configured in PagerDuty",
 	Args:  cobra.ExactArgs(1),
-	RunE:  listServices,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		pd := &pagerDutyClient{client: api.NewPagerDutyAPIClient(Config.PdAuthToken)}
+		err := pd.listServices(args[0])
+		if err != nil {
+			return err
+		}
+		return nil
+	},
 }
 
 func init() {
 	rootCmd.AddCommand(listServicesCmd)
 }
 
-func listServices(cmd *cobra.Command, args []string) error {
-	teamID := args[0]
-	services, err := api.Client.ListServices(teamID)
+func (pd *pagerDutyClient) listServices(teamID string) error {
+	services, err := pd.client.ListServices(teamID)
 	if err != nil {
 		return err
 	}

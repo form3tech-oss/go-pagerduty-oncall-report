@@ -20,7 +20,7 @@ var (
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "configuration file (default is ~/.pd-report-config.yml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "configuration file (default is ~/.pd-report-config.yml.old)")
 
 	viper.SetDefault("rotationStartHour", "08:00:00")
 	viper.SetDefault("currency", "£")

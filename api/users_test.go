@@ -189,6 +189,7 @@ func Test_ListUsers(t *testing.T) {
 			}
 
 			for i, wantUser := range tt.want {
+				assert.IsType(t, User{}, userList[i])
 				assert.Equal(t, wantUser.ID, userList[i].ID)
 				assert.Equal(t, wantUser.Name, userList[i].Name)
 				assert.Equal(t, wantUser.Email, userList[i].Email)

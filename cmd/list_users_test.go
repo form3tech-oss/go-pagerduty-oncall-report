@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/form3tech-oss/go-pagerduty-oncall-report/api"
+
 	"github.com/stretchr/testify/require"
 )
 

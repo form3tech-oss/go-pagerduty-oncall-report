@@ -8,17 +8,17 @@ type Team struct {
 	Description string
 }
 
-func (p *PagerDutyClient) ListTeams() ([]Team, error) {
+func (p *PagerDutyClient) ListTeams() ([]*Team, error) {
 	var opts pagerduty.ListTeamOptions
 	listTeamsResponse, err := p.ApiClient.ListTeams(opts)
 	if err != nil {
 		return nil, err
 	}
 
-	var teams []Team
+	var teams []*Team
 
 	for _, team := range listTeamsResponse.Teams {
-		teams = append(teams, Team{
+		teams = append(teams, &Team{
 			ID:          team.ID,
 			Name:        team.Name,
 			Description: team.Description,

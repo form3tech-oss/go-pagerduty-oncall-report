@@ -14,7 +14,7 @@ func Test_ListTeams(t *testing.T) {
 	tests := []struct {
 		name        string
 		clientSetup func(*clientMock)
-		want        []Team
+		want        []*Team
 		wantErr     bool
 	}{
 		{
@@ -41,7 +41,7 @@ func Test_ListTeams(t *testing.T) {
 						},
 					}, nil)
 			},
-			want: []Team{
+			want: []*Team{
 				{
 					ID:          "QWERTY",
 					Name:        "Team 1",
@@ -70,7 +70,7 @@ func Test_ListTeams(t *testing.T) {
 			require.NoError(t, err)
 
 			for i, wantTeam := range tt.want {
-				assert.IsType(t, Team{}, teamList[i])
+				assert.IsType(t, &Team{}, teamList[i])
 				assert.Equal(t, wantTeam.ID, teamList[i].ID)
 				assert.Equal(t, wantTeam.Name, teamList[i].Name)
 				assert.Equal(t, wantTeam.Description, teamList[i].Description)

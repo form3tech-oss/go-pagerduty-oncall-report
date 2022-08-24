@@ -8,14 +8,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type client interface {
-	ListUsers() ([]*api.User, error)
-}
-
-type pagerDutyClient struct {
-	client client
-}
-
 var listUsersCmd = &cobra.Command{
 	Use:   "users",
 	Short: "List users on PagerDuty",

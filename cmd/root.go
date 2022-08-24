@@ -18,6 +18,15 @@ var (
 	Config  *configuration.Configuration
 )
 
+type client interface {
+	ListUsers() ([]*api.User, error)
+	ListTeams() ([]*api.Team, error)
+}
+
+type pagerDutyClient struct {
+	client client
+}
+
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "configuration file (default is ~/.pd-report-config.yml)")

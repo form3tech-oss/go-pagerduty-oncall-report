@@ -35,3 +35,26 @@ func (_m *clientMock) ListUsers() ([]*api.User, error) {
 
 	return r0, r1
 }
+
+// ListTeams provides a mock function with given fields:
+func (_m *clientMock) ListTeams() ([]*api.Team, error) {
+	ret := _m.Called()
+
+	var r0 []*api.Team
+	if rf, ok := ret.Get(0).(func() []*api.Team); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*api.Team)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}

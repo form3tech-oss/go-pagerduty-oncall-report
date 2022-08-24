@@ -82,11 +82,13 @@ func Test_GetUserById(t *testing.T) {
 			}
 
 			require.NoError(t, err)
-			assert.Equal(t, user.ID, tt.want.ID)
-			assert.Equal(t, user.Name, tt.want.Name)
-			assert.Equal(t, user.Email, tt.want.Email)
-			assert.Equal(t, user.Timezone, tt.want.Timezone)
-			assert.Equal(t, user.Teams[0].ID, tt.want.Teams[0].ID)
+
+			assert.IsType(t, &User{}, user)
+			assert.Equal(t, tt.want.ID, user.ID)
+			assert.Equal(t, tt.want.Name, user.Name)
+			assert.Equal(t, tt.want.Email, user.Email)
+			assert.Equal(t, tt.want.Timezone, user.Timezone)
+			assert.Equal(t, tt.want.Teams[0].ID, user.Teams[0].ID)
 		})
 	}
 }

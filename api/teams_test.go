@@ -26,7 +26,7 @@ func Test_ListTeams(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "Succesfully get list of teams",
+			name: "Successfully get list of teams",
 			clientSetup: func(clientMock *clientMock) {
 				clientMock.On("ListTeams", mock.Anything).Once().Return(
 					&pagerduty.ListTeamResponse{

@@ -81,3 +81,26 @@ func (_m *clientMock) ListServices(_a0 string) ([]*api.Service, error) {
 
 	return r0, r1
 }
+
+// ListSchedules provides a mock function with given fields:
+func (_m *clientMock) ListSchedules() ([]*api.Schedule, error) {
+	ret := _m.Called()
+
+	var r0 []*api.Schedule
+	if rf, ok := ret.Get(0).(func() []*api.Schedule); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*api.Schedule)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}

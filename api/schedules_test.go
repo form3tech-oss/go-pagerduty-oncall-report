@@ -2,10 +2,10 @@ package api
 
 import (
 	"errors"
-	"github.com/PagerDuty/go-pagerduty"
-	"github.com/stretchr/testify/assert"
 	"testing"
 
+	"github.com/PagerDuty/go-pagerduty"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 )

@@ -8,6 +8,7 @@ import (
 
 type User struct {
 	ID       string
+	Summary  string
 	Name     string
 	Email    string
 	Timezone string
@@ -50,6 +51,7 @@ func convertUser(user *pagerduty.User) *User {
 
 	return &User{
 		ID:       user.ID,
+		Summary:  user.Summary,
 		Name:     user.Name,
 		Email:    user.Email,
 		Timezone: user.Timezone,

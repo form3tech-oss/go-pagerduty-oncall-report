@@ -21,15 +21,6 @@ type PagerDutyClient struct {
 	ApiClient PdClient
 }
 
-type ScheduleInfo struct {
-	ID            string
-	Name          string
-	Location      *time.Location
-	Start         time.Time
-	End           time.Time
-	FinalSchedule pagerduty.ScheduleLayer
-}
-
 type UserRotaPeriod struct {
 	Start time.Time
 	End   time.Time
@@ -53,34 +44,4 @@ func NewPagerDutyAPIClient(authToken string) *PagerDutyClient {
 	return &PagerDutyClient{
 		ApiClient: pagerduty.NewClient(authToken),
 	}
-}
-
-func (p *PagerDutyClient) ListSchedules() ([]pagerduty.Schedule, error) {
-	var schedules []pagerduty.Schedule
-	var opts pagerduty.ListSchedulesOptions
-	more := true
-	for more {
-		listSchedulesResponse, err := p.ApiClient.ListSchedules(opts)
-		if err != nil {
-			return nil, err
-		}
-		for _, schedule := range listSchedulesResponse.Schedules {
-			schedules = append(schedules, schedule)
-		}
-		more = listSchedulesResponse.More
-		opts.Offset = listSchedulesResponse.Limit
-	}
-
-	return schedules, nil
-}
-
-func (p *PagerDutyClient) GetSchedule(scheduleID, startDate, endDate string) (*pagerduty.Schedule, error) {
-	var opts pagerduty.GetScheduleOptions
-	opts.Since = startDate
-	opts.Until = endDate
-	scheduleResponse, err := p.ApiClient.GetSchedule(scheduleID, opts)
-	if err != nil {
-		return nil, err
-	}
-	return scheduleResponse, nil
 }

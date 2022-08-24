@@ -8,8 +8,17 @@ import (
 
 var Client *PagerDutyClient
 
+type PdClient interface {
+	ListSchedules(o pagerduty.ListSchedulesOptions) (*pagerduty.ListSchedulesResponse, error)
+	ListServices(o pagerduty.ListServiceOptions) (*pagerduty.ListServiceResponse, error)
+	ListTeams(o pagerduty.ListTeamOptions) (*pagerduty.ListTeamResponse, error)
+	ListUsers(o pagerduty.ListUsersOptions) (*pagerduty.ListUsersResponse, error)
+	GetUser(id string, o pagerduty.GetUserOptions) (*pagerduty.User, error)
+	GetSchedule(id string, o pagerduty.GetScheduleOptions) (*pagerduty.Schedule, error)
+}
+
 type PagerDutyClient struct {
-	apiClient *pagerduty.Client
+	ApiClient PdClient
 }
 
 type ScheduleInfo struct {
@@ -36,7 +45,13 @@ type ScheduleUserRotationData map[string]*UserRotaInfo
 
 func InitialisePagerDutyAPIClient(authToken string) {
 	Client = &PagerDutyClient{
-		apiClient: pagerduty.NewClient(authToken),
+		ApiClient: pagerduty.NewClient(authToken),
+	}
+}
+
+func NewPagerDutyAPIClient(authToken string) *PagerDutyClient {
+	return &PagerDutyClient{
+		ApiClient: pagerduty.NewClient(authToken),
 	}
 }
 
@@ -45,7 +60,7 @@ func (p *PagerDutyClient) ListSchedules() ([]pagerduty.Schedule, error) {
 	var opts pagerduty.ListSchedulesOptions
 	more := true
 	for more {
-		listSchedulesResponse, err := p.apiClient.ListSchedules(opts)
+		listSchedulesResponse, err := p.ApiClient.ListSchedules(opts)
 		if err != nil {
 			return nil, err
 		}
@@ -62,7 +77,7 @@ func (p *PagerDutyClient) ListSchedules() ([]pagerduty.Schedule, error) {
 func (p *PagerDutyClient) ListServices(teamID string) ([]pagerduty.Service, error) {
 	var opts pagerduty.ListServiceOptions
 	opts.TeamIDs = []string{teamID}
-	listServicesResponse, err := p.apiClient.ListServices(opts)
+	listServicesResponse, err := p.ApiClient.ListServices(opts)
 	if err != nil {
 		return nil, err
 	}
@@ -72,31 +87,18 @@ func (p *PagerDutyClient) ListServices(teamID string) ([]pagerduty.Service, erro
 
 func (p *PagerDutyClient) ListTeams() ([]pagerduty.Team, error) {
 	var opts pagerduty.ListTeamOptions
-	listTeamsResponse, err := p.apiClient.ListTeams(opts)
+	listTeamsResponse, err := p.ApiClient.ListTeams(opts)
 	if err != nil {
 		return nil, err
 	}
 	return listTeamsResponse.Teams, nil
 }
 
-func (p *PagerDutyClient) ListUsers() ([]pagerduty.User, error) {
-	var opts pagerduty.ListUsersOptions
-	listUsersResponse, err := p.apiClient.ListUsers(opts)
-	if err != nil {
-		return nil, err
-	}
-	return listUsersResponse.Users, nil
-}
-
-func (p *PagerDutyClient) GetUserById(id string) (*pagerduty.User, error) {
-	return p.apiClient.GetUser(id, pagerduty.GetUserOptions{})
-}
-
 func (p *PagerDutyClient) GetSchedule(scheduleID, startDate, endDate string) (*pagerduty.Schedule, error) {
 	var opts pagerduty.GetScheduleOptions
 	opts.Since = startDate
 	opts.Until = endDate
-	scheduleResponse, err := p.apiClient.GetSchedule(scheduleID, opts)
+	scheduleResponse, err := p.ApiClient.GetSchedule(scheduleID, opts)
 	if err != nil {
 		return nil, err
 	}

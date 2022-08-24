@@ -15,14 +15,13 @@ func (p *PagerDutyClient) ListTeams() ([]*Team, error) {
 		return nil, err
 	}
 
-	var teams []*Team
-
+	var teamList []*Team
 	for _, team := range listTeamsResponse.Teams {
-		teams = append(teams, &Team{
+		teamList = append(teamList, &Team{
 			ID:          team.ID,
 			Name:        team.Name,
 			Description: team.Description,
 		})
 	}
-	return teams, nil
+	return teamList, nil
 }

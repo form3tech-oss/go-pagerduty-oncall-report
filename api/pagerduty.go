@@ -85,15 +85,6 @@ func (p *PagerDutyClient) ListServices(teamID string) ([]pagerduty.Service, erro
 	return listServicesResponse.Services, nil
 }
 
-func (p *PagerDutyClient) ListTeams() ([]pagerduty.Team, error) {
-	var opts pagerduty.ListTeamOptions
-	listTeamsResponse, err := p.ApiClient.ListTeams(opts)
-	if err != nil {
-		return nil, err
-	}
-	return listTeamsResponse.Teams, nil
-}
-
 func (p *PagerDutyClient) GetSchedule(scheduleID, startDate, endDate string) (*pagerduty.Schedule, error) {
 	var opts pagerduty.GetScheduleOptions
 	opts.Since = startDate

@@ -14,12 +14,6 @@ type User struct {
 	Teams    []Team
 }
 
-type Team struct {
-	ID          string
-	Name        string
-	Description string
-}
-
 func (p *PagerDutyClient) ListUsers() ([]*User, error) {
 	var opts pagerduty.ListUsersOptions
 	pdUserList, err := p.ApiClient.ListUsers(opts)

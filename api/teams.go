@@ -3,9 +3,8 @@ package api
 import "github.com/PagerDuty/go-pagerduty"
 
 type Team struct {
-	ID          string
-	Name        string
-	Description string
+	ID   string
+	Name string
 }
 
 func (p *PagerDutyClient) ListTeams() ([]*Team, error) {
@@ -18,9 +17,8 @@ func (p *PagerDutyClient) ListTeams() ([]*Team, error) {
 	var teamList []*Team
 	for _, team := range listTeamsResponse.Teams {
 		teamList = append(teamList, &Team{
-			ID:          team.ID,
-			Name:        team.Name,
-			Description: team.Description,
+			ID:   team.ID,
+			Name: team.Name,
 		})
 	}
 	return teamList, nil

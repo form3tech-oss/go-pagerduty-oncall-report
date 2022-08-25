@@ -20,9 +20,8 @@ func Test_listTeams(t *testing.T) {
 			mockSetup: func(mock *clientMock) {
 				mock.On("ListTeams").Return([]*api.Team{
 					{
-						ID:          "QWERTY",
-						Name:        "Team 1",
-						Description: "Description of team 1",
+						ID:   "QWERTY",
+						Name: "Team 1",
 					},
 				}, nil)
 			},

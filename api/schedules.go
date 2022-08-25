@@ -10,15 +10,10 @@ type Schedule struct {
 	ID            string
 	Name          string
 	TimeZone      string
-	Description   string
 	FinalSchedule ScheduleLayer
 }
 
 type ScheduleLayer struct {
-	ID                      string
-	Name                    string
-	Start                   string
-	End                     string
 	RenderedScheduleEntries []RenderedScheduleEntry
 }
 
@@ -74,17 +69,12 @@ func convertSchedule(schedule *pagerduty.Schedule) *Schedule {
 		ID:            schedule.ID,
 		Name:          schedule.Name,
 		TimeZone:      schedule.TimeZone,
-		Description:   schedule.Description,
 		FinalSchedule: convertScheduleLayer(schedule.FinalSchedule),
 	}
 }
 
 func convertScheduleLayer(layer pagerduty.ScheduleLayer) ScheduleLayer {
 	return ScheduleLayer{
-		ID:                      layer.ID,
-		Name:                    layer.Name,
-		Start:                   layer.Start,
-		End:                     layer.End,
 		RenderedScheduleEntries: convertRenderedScheduleEntry(layer.RenderedScheduleEntries),
 	}
 }

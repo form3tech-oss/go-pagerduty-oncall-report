@@ -20,10 +20,9 @@ func Test_listUsers(t *testing.T) {
 			mockSetup: func(mock *clientMock) {
 				mock.On("ListUsers").Return([]*api.User{
 					{
-						ID:       "QWERTY",
-						Name:     "John Doe",
-						Email:    "john.doe@email.com",
-						Timezone: "Europe/London",
+						ID:    "QWERTY",
+						Name:  "John Doe",
+						Email: "john.doe@email.com",
 						Teams: []api.Team{
 							{
 								ID: "QWERTY",

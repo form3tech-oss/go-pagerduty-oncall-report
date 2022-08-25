@@ -43,9 +43,8 @@ func Test_ListTeams(t *testing.T) {
 			},
 			want: []*Team{
 				{
-					ID:          "QWERTY",
-					Name:        "Team 1",
-					Description: "This is the team 1",
+					ID:   "QWERTY",
+					Name: "Team 1",
 				},
 			},
 			wantErr: false,
@@ -73,7 +72,6 @@ func Test_ListTeams(t *testing.T) {
 				assert.IsType(t, &Team{}, teamList[i])
 				assert.Equal(t, wantTeam.ID, teamList[i].ID)
 				assert.Equal(t, wantTeam.Name, teamList[i].Name)
-				assert.Equal(t, wantTeam.Description, teamList[i].Description)
 			}
 		})
 	}

@@ -21,12 +21,10 @@ func Test_listSchedules(t *testing.T) {
 			mockSetup: func(clientMock *clientMock) {
 				clientMock.On("ListSchedules", mock.Anything).Once().Return([]*api.Schedule{
 					{
-						ID:          "QWERTY",
-						Name:        "Schedule 1",
-						TimeZone:    "Europe/London",
-						Description: "This is the schedule 1",
+						ID:       "QWERTY",
+						Name:     "Schedule 1",
+						TimeZone: "Europe/London",
 						FinalSchedule: api.ScheduleLayer{
-							ID: "QWERTY1",
 							RenderedScheduleEntries: []api.RenderedScheduleEntry{
 								{
 									Start: "2022-08-24T09:35:12+01:00",

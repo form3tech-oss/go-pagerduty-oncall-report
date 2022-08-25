@@ -57,14 +57,10 @@ func Test_ListSchedules(t *testing.T) {
 			},
 			want: []*Schedule{
 				{
-					ID:          "QWERTY",
-					Name:        "Schedule 1",
-					TimeZone:    "Europe/London",
-					Description: "This is the schedule 1",
+					ID:       "QWERTY",
+					Name:     "Schedule 1",
+					TimeZone: "Europe/London",
 					FinalSchedule: ScheduleLayer{
-						ID:    "QWERTY1",
-						Name:  "Final Schedule 1",
-						Start: "2022-08-24T09:35:12+01:00",
 						RenderedScheduleEntries: []RenderedScheduleEntry{
 							{
 								Start: "2022-08-24T09:35:12+01:00",
@@ -99,12 +95,8 @@ func Test_ListSchedules(t *testing.T) {
 				assert.Equal(t, wantSchedule.ID, scheduleList[i].ID)
 				assert.Equal(t, wantSchedule.Name, scheduleList[i].Name)
 				assert.Equal(t, wantSchedule.TimeZone, scheduleList[i].TimeZone)
-				assert.Equal(t, wantSchedule.Description, scheduleList[i].Description)
 
 				assert.IsType(t, ScheduleLayer{}, scheduleList[i].FinalSchedule)
-				assert.Equal(t, wantSchedule.FinalSchedule.ID, scheduleList[i].FinalSchedule.ID)
-				assert.Equal(t, wantSchedule.FinalSchedule.Start, scheduleList[i].FinalSchedule.Start)
-
 				assert.IsType(t, []RenderedScheduleEntry{}, scheduleList[i].FinalSchedule.RenderedScheduleEntries)
 			}
 		})
@@ -121,14 +113,10 @@ func Test_GetSchedule(t *testing.T) {
 		{
 			name: "Successfully get schedule by ID",
 			want: Schedule{
-				ID:          "QWERTY",
-				Name:        "Schedule 1",
-				TimeZone:    "Europe/London",
-				Description: "This is the schedule 1",
+				ID:       "QWERTY",
+				Name:     "Schedule 1",
+				TimeZone: "Europe/London",
 				FinalSchedule: ScheduleLayer{
-					ID:    "QWERTY1",
-					Name:  "Final Schedule 1",
-					Start: "2022-08-24T09:35:12+01:00",
 					RenderedScheduleEntries: []RenderedScheduleEntry{
 						{
 							Start: "2022-08-24T09:35:12+01:00",
@@ -192,7 +180,6 @@ func Test_GetSchedule(t *testing.T) {
 			assert.IsType(t, &Schedule{}, schedule)
 			assert.Equal(t, tt.want.ID, schedule.ID)
 			assert.Equal(t, tt.want.Name, schedule.Name)
-			assert.Equal(t, tt.want.Description, schedule.Description)
 
 			assert.IsType(t, ScheduleLayer{}, schedule.FinalSchedule)
 			assert.IsType(t, []RenderedScheduleEntry{}, schedule.FinalSchedule.RenderedScheduleEntries)

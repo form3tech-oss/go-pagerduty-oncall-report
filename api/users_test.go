@@ -20,10 +20,9 @@ func Test_GetUserById(t *testing.T) {
 		{
 			name: "Successfully get user by ID",
 			want: User{
-				ID:       "QWERTY",
-				Name:     "John Doe",
-				Email:    "john.doe@email.com",
-				Timezone: "Europe/London",
+				ID:    "QWERTY",
+				Name:  "John Doe",
+				Email: "john.doe@email.com",
 				Teams: []Team{
 					{
 						ID: "QWERTY",
@@ -52,10 +51,9 @@ func Test_GetUserById(t *testing.T) {
 		{
 			name: "Failed get user by ID",
 			want: User{
-				ID:       "QWERTY",
-				Name:     "John Doe",
-				Email:    "john.doe@email.com",
-				Timezone: "Europe/London",
+				ID:    "QWERTY",
+				Name:  "John Doe",
+				Email: "john.doe@email.com",
 			},
 			clientSetup: func(clientMock *clientMock) {
 				clientMock.On("GetUser", mock.Anything, mock.Anything).Once().Return(
@@ -87,7 +85,6 @@ func Test_GetUserById(t *testing.T) {
 			assert.Equal(t, tt.want.ID, user.ID)
 			assert.Equal(t, tt.want.Name, user.Name)
 			assert.Equal(t, tt.want.Email, user.Email)
-			assert.Equal(t, tt.want.Timezone, user.Timezone)
 			assert.Equal(t, tt.want.Teams[0].ID, user.Teams[0].ID)
 		})
 	}
@@ -149,10 +146,9 @@ func Test_ListUsers(t *testing.T) {
 			},
 			want: []*User{
 				{
-					ID:       "QWERTY",
-					Name:     "John Doe",
-					Email:    "john.doe@email.com",
-					Timezone: "Europe/London",
+					ID:    "QWERTY",
+					Name:  "John Doe",
+					Email: "john.doe@email.com",
 					Teams: []Team{
 						{
 							ID: "QWERTY",
@@ -160,10 +156,9 @@ func Test_ListUsers(t *testing.T) {
 					},
 				},
 				{
-					ID:       "QWERTY2",
-					Name:     "Jane Doe",
-					Email:    "jane.doe@email.com",
-					Timezone: "Europe/London",
+					ID:    "QWERTY2",
+					Name:  "Jane Doe",
+					Email: "jane.doe@email.com",
 					Teams: []Team{
 						{
 							ID: "QWERTY2",
@@ -195,7 +190,6 @@ func Test_ListUsers(t *testing.T) {
 				assert.Equal(t, wantUser.ID, userList[i].ID)
 				assert.Equal(t, wantUser.Name, userList[i].Name)
 				assert.Equal(t, wantUser.Email, userList[i].Email)
-				assert.Equal(t, wantUser.Timezone, userList[i].Timezone)
 				assert.Equal(t, wantUser.Teams[0].ID, userList[i].Teams[0].ID)
 			}
 

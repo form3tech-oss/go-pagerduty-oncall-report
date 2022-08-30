@@ -38,22 +38,27 @@ func init() {
 }
 
 func initConfig() {
-	if cfgFile == "" {
+	// Don't forget to read model either from cfgFile or from home directory!
+	if cfgFile != "" {
+		// Use model file from the flag.
+		viper.SetConfigFile(cfgFile)
+		log.Println("Reading configuration file:", cfgFile)
+	} else {
+		// Find home directory.
 		home, err := homedir.Dir()
 		if err != nil {
-			log.Fatal("failed to get home directory: ", err)
+			log.Fatal("Can't get the homedir: ", err)
 		}
 
-		filename := ".pd-report-config.yml"
-		cfgFile = fmt.Sprintf("%s/%s", home, filename)
+		viper.AddConfigPath(home)
+		viper.SetConfigName(".pd-report-config")
+		log.Println("Reading configuration file:", fmt.Sprintf("%s/.pd-report-config-yml", home))
 	}
 
-	viper.SetConfigFile(cfgFile)
 	viper.SetConfigType("yaml")
-	log.Println("reading configuration file:", cfgFile)
 
 	if err := viper.ReadInConfig(); err != nil {
-		log.Fatal("failed to read config file: ", err)
+		log.Fatal("Can't read config: ", err)
 	}
 
 	Config = configuration.New()

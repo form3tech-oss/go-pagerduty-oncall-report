@@ -14,11 +14,7 @@ var listUsersCmd = &cobra.Command{
 	Long:  "Get the list of users configured in PagerDuty",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		pd := &pagerDutyClient{client: api.NewPagerDutyAPIClient(Config.PdAuthToken)}
-		err := pd.listUsers()
-		if err != nil {
-			return err
-		}
-		return nil
+		return pd.listUsers()
 	},
 }
 

@@ -14,11 +14,7 @@ var listTeamsCmd = &cobra.Command{
 	Long:  "Get the list of teams configured in PagerDuty",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		pd := &pagerDutyClient{client: api.NewPagerDutyAPIClient(Config.PdAuthToken)}
-		err := pd.listTeams()
-		if err != nil {
-			return err
-		}
-		return nil
+		return pd.listTeams()
 	},
 }
 

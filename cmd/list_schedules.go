@@ -14,11 +14,7 @@ var listSchedulesCmd = &cobra.Command{
 	Long:  "Get the list of schedules configured in PagerDuty",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		pd := &pagerDutyClient{client: api.NewPagerDutyAPIClient(Config.PdAuthToken)}
-		err := pd.listSchedules()
-		if err != nil {
-			return err
-		}
-		return nil
+		return pd.listSchedules()
 	},
 }
 

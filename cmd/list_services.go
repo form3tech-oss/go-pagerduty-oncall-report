@@ -15,11 +15,7 @@ var listServicesCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		pd := &pagerDutyClient{client: api.NewPagerDutyAPIClient(Config.PdAuthToken)}
-		err := pd.listServices(args[0])
-		if err != nil {
-			return err
-		}
-		return nil
+		return pd.listServices(args[0])
 	},
 }
 

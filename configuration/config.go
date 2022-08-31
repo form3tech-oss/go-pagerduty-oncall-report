@@ -2,8 +2,9 @@ package configuration
 
 import (
 	"fmt"
-	"github.com/form3tech-oss/go-pagerduty-oncall-report/api"
 	"log"
+
+	"github.com/form3tech-oss/go-pagerduty-oncall-report/api"
 )
 
 type RotationUser struct {
@@ -121,7 +122,6 @@ func (c *Configuration) FindRotationUserInfoByID(userID string) (*RotationUser, 
 	if user == nil {
 		return nil, fmt.Errorf("user id %s not found", userID)
 	}
-
 
 	rotationUser := &RotationUser{
 		UserID:           userID,

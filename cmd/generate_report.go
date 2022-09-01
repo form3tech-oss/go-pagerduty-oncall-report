@@ -18,7 +18,10 @@ var (
 		Use:   "report",
 		Short: "generates the report(s) for the given schedule(s) id(s)",
 		Long:  "Generates the report of the given list of schedules or all (except the ignored ones configured in yml)",
-		RunE:  generateReport,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			pd := &pagerDutyClient{client: api.NewPagerDutyAPIClient(Config.PdAuthToken)}
+			return pd.generateReport()
+		},
 	}
 
 	rawSchedules []string
@@ -48,8 +51,7 @@ func contains(s []string, e string) bool {
 	return false
 }
 
-func processArguments() []Schedule {
-
+func (pd *pagerDutyClient) processArguments() []Schedule {
 	if !contains([]string{"console", "pdf", "csv"}, outputFormat) {
 		log.Printf("output format %s not supported. Defaulting to 'console'", outputFormat)
 		outputFormat = "console"
@@ -100,7 +102,7 @@ func processArguments() []Schedule {
 
 	schedules := make([]Schedule, 0)
 	if len(rawSchedules) == 1 && rawSchedules[0] == "all" {
-		schedulesList, err := api.Client.ListSchedules()
+		schedulesList, err := pd.client.ListSchedules()
 		if err != nil {
 			log.Fatalln(fmt.Sprintf("Error getting the schedules list: %s", err.Error()))
 		}
@@ -166,8 +168,8 @@ func processArguments() []Schedule {
 	return schedules
 }
 
-func generateReport(cmd *cobra.Command, args []string) error {
-	input := processArguments()
+func (pd *pagerDutyClient) generateReport() error {
+	input := pd.processArguments()
 
 	firstStartDate := time.Now()
 	lastEndDate := time.Time{}
@@ -198,7 +200,7 @@ func generateReport(cmd *cobra.Command, args []string) error {
 
 	for _, schedule := range input {
 		log.Printf("Loading information for the schedule '%s'", schedule.id)
-		scheduleInfo, err := getScheduleInformation(schedule.id, schedule.startDate, schedule.endDate)
+		scheduleInfo, err := pd.getScheduleInformation(schedule.id, schedule.startDate, schedule.endDate)
 		if err != nil {
 			return err
 		}
@@ -273,8 +275,8 @@ func calculateSummaryData(data []*report.ScheduleData, pricesInfo *PricesInfo) [
 	return result
 }
 
-func getScheduleInformation(scheduleID string, startDate, endDate time.Time) (*api.ScheduleInfo, error) {
-	schedule, err := api.Client.GetSchedule(scheduleID,
+func (pd *pagerDutyClient) getScheduleInformation(scheduleID string, startDate, endDate time.Time) (*api.ScheduleInfo, error) {
+	schedule, err := pd.client.GetSchedule(scheduleID,
 		startDate.Format("2006-01-02T15:04:05"),
 		endDate.Format("2006-01-02T15:04:05"))
 	if err != nil {

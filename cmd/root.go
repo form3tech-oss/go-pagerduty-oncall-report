@@ -23,6 +23,7 @@ type client interface {
 	ListTeams() ([]*api.Team, error)
 	ListServices(string) ([]*api.Service, error)
 	ListSchedules() ([]*api.Schedule, error)
+	GetSchedule(scheduleID, startDate, endDate string) (*api.Schedule, error)
 }
 
 type pagerDutyClient struct {

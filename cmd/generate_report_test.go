@@ -69,11 +69,12 @@ func Test_pagerDutyClient_loadUsersInMemoryCache(t *testing.T) {
 
 func Test_pagerDutyClient_getUserTimezone(t *testing.T) {
 	tests := []struct {
-		name        string
-		cachedUsers []*api.User
-		mockSetup   func(mock *clientMock)
-		want        string
-		wantErr     bool
+		name                string
+		cachedUsers         []*api.User
+		defaultUserTimezone string
+		mockSetup           func(mock *clientMock)
+		want                string
+		wantErr             bool
 	}{
 		{
 			name: "Successfully find the user timezone",
@@ -87,24 +88,26 @@ func Test_pagerDutyClient_getUserTimezone(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "User with empty timezone will fail to return timezone",
+			name: "User with empty timezone will receive default configured timezone",
 			cachedUsers: []*api.User{
 				{
 					ID: "USER_ID",
 				},
 			},
-			want:    "Europe/London",
-			wantErr: true,
+			defaultUserTimezone: "Europe/London",
+			want:                "Europe/London",
+			wantErr:             false,
 		},
 		{
-			name: "User not cached will fail to return timezone",
+			name: "User not cached will receive default configured timezone",
 			cachedUsers: []*api.User{
 				{
 					ID: "NOT_THE_USER_ID",
 				},
 			},
-			want:    "Europe/London",
-			wantErr: true,
+			defaultUserTimezone: "America/Sao_Paulo",
+			want:                "America/Sao_Paulo",
+			wantErr:             false,
 		},
 		{
 			name: "If user not cached it will load users in cache and successfully return timezone",
@@ -124,7 +127,11 @@ func Test_pagerDutyClient_getUserTimezone(t *testing.T) {
 				tt.mockSetup(mockedClient)
 			}
 
-			pd := pagerDutyClient{client: mockedClient, cachedUsers: tt.cachedUsers}
+			pd := pagerDutyClient{
+				client:              mockedClient,
+				cachedUsers:         tt.cachedUsers,
+				defaultUserTimezone: tt.defaultUserTimezone,
+			}
 
 			got, err := pd.getUserTimezone("USER_ID")
 			mockedClient.AssertExpectations(t)

@@ -30,6 +30,8 @@ type pagerDutyClient struct {
 	client client
 
 	cachedUsers []*api.User
+
+	defaultUserTimezone string
 }
 
 func init() {

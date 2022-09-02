@@ -19,7 +19,10 @@ var (
 		Short: "generates the report(s) for the given schedule(s) id(s)",
 		Long:  "Generates the report of the given list of schedules or all (except the ignored ones configured in yml)",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			pd := &pagerDutyClient{client: api.NewPagerDutyAPIClient(Config.PdAuthToken)}
+			pd := &pagerDutyClient{
+				client:              api.NewPagerDutyAPIClient(Config.PdAuthToken),
+				defaultUserTimezone: Config.DefaultUserTimezone,
+			}
 			return pd.generateReport()
 		},
 	}
@@ -422,7 +425,7 @@ func (pd *pagerDutyClient) getUserTimezone(userID string) (string, error) {
 	}
 
 	if timezone == "" {
-		return "", fmt.Errorf("failed to get user with id %s timezone", userID)
+		timezone = pd.defaultUserTimezone
 	}
 
 	return timezone, nil

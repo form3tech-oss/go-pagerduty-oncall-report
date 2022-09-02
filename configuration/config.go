@@ -46,6 +46,7 @@ type ScheduleTimeRange struct {
 type Configuration struct {
 	PdAuthToken                string
 	DefaultHolidayCalendar     string
+	DefaultUserTimezone        string
 	ReportTimeRange            ReportTimeRange
 	RotationInfo               RotationInfo
 	RotationExcludedHours      []RotationExcludedHoursDay

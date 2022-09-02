@@ -17,14 +17,20 @@ type User struct {
 
 func (p *PagerDutyClient) ListUsers() ([]*User, error) {
 	var opts pagerduty.ListUsersOptions
-	pdUserList, err := p.ApiClient.ListUsers(opts)
-	if err != nil {
-		return nil, err
-	}
-
 	var userList []*User
-	for _, user := range pdUserList.Users {
-		userList = append(userList, convertUser(&user))
+
+	more := true
+	for more {
+		listUsersResponse, err := p.ApiClient.ListUsers(opts)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, user := range listUsersResponse.Users {
+			userList = append(userList, convertUser(&user))
+		}
+		more = listUsersResponse.More
+		opts.Offset += listUsersResponse.Limit
 	}
 
 	return userList, nil

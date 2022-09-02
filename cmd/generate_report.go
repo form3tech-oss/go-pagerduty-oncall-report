@@ -210,7 +210,7 @@ func (pd *pagerDutyClient) generateReport() error {
 			return err
 		}
 
-		scheduleData, err := generateScheduleData(scheduleInfo, usersRotationData, pricesInfo, schedule)
+		scheduleData, err := pd.generateScheduleData(scheduleInfo, usersRotationData, pricesInfo, schedule)
 		if err != nil {
 			return err
 		}
@@ -241,7 +241,6 @@ func (pd *pagerDutyClient) generateReport() error {
 }
 
 func calculateSummaryData(data []*report.ScheduleData, pricesInfo *PricesInfo) []*report.ScheduleUser {
-
 	usersSummary := make(map[string]*report.ScheduleUser)
 
 	for _, schedData := range data {
@@ -328,7 +327,7 @@ func getUsersRotationData(scheduleInfo *api.ScheduleInfo) (api.ScheduleUserRotat
 	return usersInfo, nil
 }
 
-func generateScheduleData(scheduleInfo *api.ScheduleInfo, usersRotationData api.ScheduleUserRotationData,
+func (pd *pagerDutyClient) generateScheduleData(scheduleInfo *api.ScheduleInfo, usersRotationData api.ScheduleUserRotationData,
 	pricesInfo *PricesInfo, schedule Schedule) (*report.ScheduleData, error) {
 
 	scheduleData := &report.ScheduleData{
@@ -359,8 +358,24 @@ func generateScheduleData(scheduleInfo *api.ScheduleInfo, usersRotationData api.
 		for _, period := range userRotaInfo.Periods {
 			currentMonth := period.Start.Month()
 			currentDate := period.Start
+
+			timezone, err := pd.getUserTimezone(userRotaInfo.ID)
+			if err != nil {
+				return nil, fmt.Errorf("failed to generate schedule data, Aborting: %w", err)
+			}
+
+			location, err := time.LoadLocation(timezone)
+			if err != nil {
+				log.Fatalf("failed to load location by timezone: %s", err)
+			}
+
+			currentLocalDate := currentDate.In(location)
+			if currentLocalDate.IsZero() {
+				log.Fatal("failed to convert timezone")
+			}
+
 			for currentDate.Before(period.End) {
-				updateDataForDate(&userCalendar, scheduleUserData, currentMonth, currentDate)
+				updateDataForDate(&userCalendar, scheduleUserData, currentMonth, currentLocalDate)
 				currentDate = currentDate.Add(time.Minute * time.Duration(Config.RotationInfo.CheckRotationChangeEvery))
 			}
 		}
@@ -380,8 +395,40 @@ func generateScheduleData(scheduleInfo *api.ScheduleInfo, usersRotationData api.
 	return scheduleData, nil
 }
 
-func updateDataForDate(calendar *configuration.BHCalendar, data *report.ScheduleUser, currentMonth time.Month, date time.Time) {
+func (pd *pagerDutyClient) loadUsersInMemoryCache() error {
+	users, err := pd.client.ListUsers()
+	if err != nil {
+		return fmt.Errorf("failed to load users in memory: %w", err)
+	}
 
+	pd.cachedUsers = users
+	return nil
+}
+
+func (pd *pagerDutyClient) getUserTimezone(userID string) (string, error) {
+	var timezone string
+
+	if len(pd.cachedUsers) == 0 {
+		err := pd.loadUsersInMemoryCache()
+		if err != nil {
+			return "", fmt.Errorf("failed to get user with id %s timezone: %w", userID, err)
+		}
+	}
+
+	for _, user := range pd.cachedUsers {
+		if user.ID == userID {
+			timezone = user.Timezone
+		}
+	}
+
+	if timezone == "" {
+		return "", fmt.Errorf("failed to get user with id %s timezone", userID)
+	}
+
+	return timezone, nil
+}
+
+func updateDataForDate(calendar *configuration.BHCalendar, data *report.ScheduleUser, currentMonth time.Month, date time.Time) {
 	if date.Hour() < Config.RotationInfo.DailyRotationStartsAt {
 		newDate := date.Add(time.Hour * time.Duration(-(date.Hour() + 1))) // move to yesterday night to determine which kind of day it was
 		// if yesterday night was last month, ignore the date
@@ -439,7 +486,6 @@ type PricesInfo struct {
 }
 
 func generatePricesInfo() (*PricesInfo, error) {
-
 	weekDayPrice, err := Config.FindPriceByDay("weekday")
 	if err != nil {
 		return nil, err

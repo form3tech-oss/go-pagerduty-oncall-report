@@ -7,11 +7,12 @@ import (
 )
 
 type User struct {
-	ID      string
-	Summary string
-	Name    string
-	Email   string
-	Teams   []Team
+	ID       string
+	Summary  string
+	Name     string
+	Email    string
+	Timezone string
+	Teams    []Team
 }
 
 func (p *PagerDutyClient) ListUsers() ([]*User, error) {
@@ -48,10 +49,11 @@ func convertUser(user *pagerduty.User) *User {
 	}
 
 	return &User{
-		ID:      user.ID,
-		Summary: user.Summary,
-		Name:    user.Name,
-		Email:   user.Email,
-		Teams:   userTeams,
+		ID:       user.ID,
+		Summary:  user.Summary,
+		Name:     user.Name,
+		Email:    user.Email,
+		Timezone: user.Timezone,
+		Teams:    userTeams,
 	}
 }

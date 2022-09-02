@@ -28,6 +28,8 @@ type client interface {
 
 type pagerDutyClient struct {
 	client client
+
+	cachedUsers []*api.User
 }
 
 func init() {
@@ -67,8 +69,6 @@ func initConfig() {
 	if err != nil {
 		log.Fatalf("%v, %#v", err, Config)
 	}
-
-	api.InitialisePagerDutyAPIClient(Config.PdAuthToken)
 }
 
 var rootCmd = &cobra.Command{

@@ -6,8 +6,6 @@ import (
 	"github.com/PagerDuty/go-pagerduty"
 )
 
-var Client *PagerDutyClient
-
 type PdClient interface {
 	ListSchedules(o pagerduty.ListSchedulesOptions) (*pagerduty.ListSchedulesResponse, error)
 	ListServices(o pagerduty.ListServiceOptions) (*pagerduty.ListServiceResponse, error)
@@ -33,13 +31,6 @@ type UserRotaInfo struct {
 }
 
 type ScheduleUserRotationData map[string]*UserRotaInfo
-
-// InitialisePagerDutyAPIClient intentionally kept but will be removed as soon as generate_report.go is covered by tests
-func InitialisePagerDutyAPIClient(authToken string) {
-	Client = &PagerDutyClient{
-		ApiClient: pagerduty.NewClient(authToken),
-	}
-}
 
 func NewPagerDutyAPIClient(authToken string) *PagerDutyClient {
 	return &PagerDutyClient{

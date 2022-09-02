@@ -1,11 +1,11 @@
 package stages
 
 import (
+	"bytes"
 	"testing"
 
-	"bytes"
-
 	"github.com/form3tech-oss/go-pagerduty-oncall-report/configuration"
+
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
@@ -121,12 +121,12 @@ func (s *ConfigStage) ANonExistingPriceIsRequested() *ConfigStage {
 }
 
 func (s *ConfigStage) AnExistingRotationInfoIsRequested() *ConfigStage {
-	s.mapValue, s.mapError = s.config.FindRotationUserInfoByID("ABCDEF1")
+	s.mapValue, s.mapError = s.config.FindRotationUserInfoByID("ABCDEF1", "NAME")
 	return s
 }
 
 func (s *ConfigStage) ANonExistingRotationInfoIsRequested() *ConfigStage {
-	s.mapValue, s.mapError = s.config.FindRotationUserInfoByID("NONE")
+	s.mapValue, s.mapError = s.config.FindRotationUserInfoByID("NONE", "NAME")
 	return s
 }
 

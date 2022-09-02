@@ -3,8 +3,6 @@ package configuration
 import (
 	"fmt"
 	"log"
-
-	"github.com/form3tech-oss/go-pagerduty-oncall-report/api"
 )
 
 type RotationUser struct {
@@ -99,7 +97,7 @@ func (c *Configuration) FindRotationExcludedHoursByDay(dayType string) (*Rotatio
 	return nil, fmt.Errorf("day type %s not found", dayType)
 }
 
-func (c *Configuration) FindRotationUserInfoByID(userID string) (*RotationUser, error) {
+func (c *Configuration) FindRotationUserInfoByID(userID, userName string) (*RotationUser, error) {
 	if rotationUser, ok := c.cacheRotationUsers[userID]; ok {
 		return rotationUser, nil
 	}
@@ -114,23 +112,13 @@ func (c *Configuration) FindRotationUserInfoByID(userID string) (*RotationUser, 
 		return nil, fmt.Errorf("user id %s not found", userID)
 	}
 
-	user, err := api.Client.GetUserById(userID)
-	if err != nil {
-		return nil, fmt.Errorf("could not find user from pagerduty api, err: %v", err)
-	}
-
-	if user == nil {
-		return nil, fmt.Errorf("user id %s not found", userID)
-	}
-
 	rotationUser := &RotationUser{
 		UserID:           userID,
-		Name:             user.Name,
 		HolidaysCalendar: c.DefaultHolidayCalendar, // default to config value
 	}
 
 	c.cacheRotationUsers[userID] = rotationUser
-	log.Printf("defaulting user %s id: %s to %s\n", user.Name, userID, c.DefaultHolidayCalendar)
+	log.Printf("defaulting user %s id: %s to %s\n", userName, userID, c.DefaultHolidayCalendar)
 
 	return rotationUser, nil
 }

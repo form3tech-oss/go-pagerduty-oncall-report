@@ -340,7 +340,7 @@ func generateScheduleData(scheduleInfo *api.ScheduleInfo, usersRotationData api.
 	}
 
 	for userID, userRotaInfo := range usersRotationData {
-		rotationUserConfig, err := Config.FindRotationUserInfoByID(userID)
+		rotationUserConfig, err := Config.FindRotationUserInfoByID(userID, userRotaInfo.Name)
 		if err != nil {
 			log.Println("Error:", err)
 			continue

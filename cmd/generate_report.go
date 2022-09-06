@@ -192,7 +192,7 @@ func (pd *pagerDutyClient) generateReport() error {
 		SchedulesData: make([]*report.ScheduleData, 0),
 	}
 
-	pricesInfo, err := generatePricesInfo()
+	pricesInfo, err := Config.GetPricesInfo()
 	if err != nil {
 		return err
 	}
@@ -243,7 +243,7 @@ func (pd *pagerDutyClient) generateReport() error {
 	return nil
 }
 
-func calculateSummaryData(data []*report.ScheduleData, pricesInfo *PricesInfo) []*report.ScheduleUser {
+func calculateSummaryData(data []*report.ScheduleData, pricesInfo *configuration.PricesInfo) []*report.ScheduleUser {
 	usersSummary := make(map[string]*report.ScheduleUser)
 
 	for _, schedData := range data {
@@ -331,7 +331,7 @@ func getUsersRotationData(scheduleInfo *api.ScheduleInfo) (api.ScheduleUserRotat
 }
 
 func (pd *pagerDutyClient) generateScheduleData(scheduleInfo *api.ScheduleInfo, usersRotationData api.ScheduleUserRotationData,
-	pricesInfo *PricesInfo, schedule Schedule) (*report.ScheduleData, error) {
+	pricesInfo *configuration.PricesInfo, schedule Schedule) (*report.ScheduleData, error) {
 
 	scheduleData := &report.ScheduleData{
 		ID:        scheduleInfo.ID,
@@ -477,57 +477,4 @@ func updateDataForDate(calendar *configuration.BHCalendar, data *report.Schedule
 			}
 		}
 	}
-}
-
-type PricesInfo struct {
-	WeekDayHourlyPrice    float32
-	HoursWeekDay          int
-	WeekendDayHourlyPrice float32
-	HoursWeekendDay       int
-	BhDayHourlyPrice      float32
-	HoursBhDay            int
-}
-
-func generatePricesInfo() (*PricesInfo, error) {
-	weekDayPrice, err := Config.FindPriceByDay("weekday")
-	if err != nil {
-		return nil, err
-	}
-	excludedWeekDayHoursAmount := 0
-	excludedHours, _ := Config.FindRotationExcludedHoursByDay("weekday")
-	if excludedHours != nil {
-		excludedWeekDayHoursAmount = excludedHours.ExcludedEndsAt - excludedHours.ExcludedStartsAt
-	}
-	weekDayWorkingHours := 24 - excludedWeekDayHoursAmount
-
-	weekendDayPrice, err := Config.FindPriceByDay("weekend")
-	if err != nil {
-		return nil, err
-	}
-	excludedWeekendDayHoursAmount := 0
-	excludedHours, _ = Config.FindRotationExcludedHoursByDay("weekend")
-	if excludedHours != nil {
-		excludedWeekendDayHoursAmount = excludedHours.ExcludedEndsAt - excludedHours.ExcludedStartsAt
-	}
-	weekendDayWorkingHours := 24 - excludedWeekendDayHoursAmount
-
-	bhDayPrice, err := Config.FindPriceByDay("bankholiday")
-	if err != nil {
-		return nil, err
-	}
-	excludedBhDayHoursAmount := 0
-	excludedHours, _ = Config.FindRotationExcludedHoursByDay("bankholiday")
-	if excludedHours != nil {
-		excludedBhDayHoursAmount = excludedHours.ExcludedEndsAt - excludedHours.ExcludedStartsAt
-	}
-	bhWorkingHours := 24 - excludedBhDayHoursAmount
-
-	return &PricesInfo{
-		WeekDayHourlyPrice:    float32(*weekDayPrice) / float32(weekDayWorkingHours),
-		HoursWeekDay:          weekDayWorkingHours,
-		WeekendDayHourlyPrice: float32(*weekendDayPrice) / float32(weekendDayWorkingHours),
-		HoursWeekendDay:       weekendDayWorkingHours,
-		BhDayHourlyPrice:      float32(*bhDayPrice) / float32(bhWorkingHours),
-		HoursBhDay:            bhWorkingHours,
-	}, nil
 }

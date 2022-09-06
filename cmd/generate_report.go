@@ -351,7 +351,7 @@ func (pd *pagerDutyClient) generateScheduleData(scheduleInfo *api.ScheduleInfo, 
 		calendarName := fmt.Sprintf("%s-%d", rotationUserConfig.HolidaysCalendar, scheduleInfo.Start.Year())
 		userCalendar, present := configuration.BankHolidaysCalendars[calendarName]
 		if !present {
-			return nil, fmt.Errorf("calendar '%s' not found for user '%s'. Aborting", calendarName, userID)
+			return nil, fmt.Errorf("aborted due to calendar '%s' not found for user '%s'", calendarName, userID)
 		}
 
 		scheduleUserData := &report.ScheduleUser{
@@ -362,19 +362,9 @@ func (pd *pagerDutyClient) generateScheduleData(scheduleInfo *api.ScheduleInfo, 
 			currentMonth := period.Start.Month()
 			currentDate := period.Start
 
-			timezone, err := pd.getUserTimezone(userRotaInfo.ID)
+			currentLocalDate, err := pd.convertToUserLocalTimezone(currentDate, userRotaInfo.ID)
 			if err != nil {
-				return nil, fmt.Errorf("failed to generate schedule data, Aborting: %w", err)
-			}
-
-			location, err := time.LoadLocation(timezone)
-			if err != nil {
-				log.Fatalf("failed to load location by timezone: %s", err)
-			}
-
-			currentLocalDate := currentDate.In(location)
-			if currentLocalDate.IsZero() {
-				log.Fatal("failed to convert timezone")
+				return nil, fmt.Errorf("aborted due to failed to convert to user local timezone: %w", err)
 			}
 
 			for currentLocalDate.Before(period.End) {
@@ -396,6 +386,25 @@ func (pd *pagerDutyClient) generateScheduleData(scheduleInfo *api.ScheduleInfo, 
 	}
 
 	return scheduleData, nil
+}
+
+func (pd *pagerDutyClient) convertToUserLocalTimezone(scheduleDate time.Time, userID string) (time.Time, error) {
+	timezone, err := pd.getUserTimezone(userID)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("failed to find user local timezone, Aborting: %w", err)
+	}
+
+	location, err := time.LoadLocation(timezone)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("failed to load location by timezone: %w", err)
+	}
+
+	currentLocalDate := scheduleDate.In(location)
+	if currentLocalDate.IsZero() {
+		return time.Time{}, fmt.Errorf("failed to convert timezone")
+	}
+
+	return currentLocalDate, nil
 }
 
 func (pd *pagerDutyClient) loadUsersInMemoryCache() error {

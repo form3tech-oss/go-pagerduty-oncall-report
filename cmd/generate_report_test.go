@@ -2,9 +2,9 @@ package cmd
 
 import (
 	"errors"
-	"testing"
-
 	"github.com/form3tech-oss/go-pagerduty-oncall-report/api"
+	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -144,6 +144,81 @@ func Test_pagerDutyClient_getUserTimezone(t *testing.T) {
 			require.NoError(t, err)
 
 			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func Test_pagerDutyClient_convertToUserLocalTimezone(t *testing.T) {
+	tests := []struct {
+		name         string
+		scheduleDate string
+		cachedUsers  []*api.User
+		mockSetup    func(mock *clientMock)
+		want         string
+		wantErr      bool
+	}{
+		{
+			name:         "Successfully converts schedule BST date to user's EDT local date",
+			scheduleDate: "01 Sep 22 17:00 BST",
+			cachedUsers: []*api.User{
+				{
+					ID:       "USER_ID",
+					Timezone: "America/New_York",
+				},
+			},
+			want:    "01 Sep 22 12:00 EDT",
+			wantErr: false,
+		},
+		{
+			name:         "Fails to list users fails to convert user timezone",
+			scheduleDate: "01 Sep 22 17:00 BST",
+			mockSetup: func(mock *clientMock) {
+				mock.On("ListUsers").Once().Return(nil, errors.New("failed"))
+			},
+			wantErr: true,
+		},
+		{
+			name:         "Fails to convert due non existent timezone",
+			scheduleDate: "01 Sep 22 17:00 BST",
+			cachedUsers: []*api.User{
+				{
+					ID:       "USER_ID",
+					Timezone: "Mars/Kaiser_Sea",
+				},
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockedClient := &clientMock{}
+			if tt.mockSetup != nil {
+				tt.mockSetup(mockedClient)
+			}
+
+			pd := pagerDutyClient{
+				client:      mockedClient,
+				cachedUsers: tt.cachedUsers,
+			}
+
+			scheduleDate, err := time.Parse(time.RFC822, tt.scheduleDate)
+			require.NoError(t, err)
+
+			got, err := pd.convertToUserLocalTimezone(scheduleDate, "USER_ID")
+			mockedClient.AssertExpectations(t)
+
+			if tt.wantErr == true {
+				require.Error(t, err)
+				return
+			}
+
+			require.NoError(t, err)
+
+			expectedDate, err := time.Parse(time.RFC822, tt.want)
+			require.NoError(t, err)
+
+			assert.Equal(t, expectedDate.Hour(), got.Hour())
+			assert.Equal(t, expectedDate.Minute(), got.Minute())
 		})
 	}
 }

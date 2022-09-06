@@ -377,9 +377,9 @@ func (pd *pagerDutyClient) generateScheduleData(scheduleInfo *api.ScheduleInfo, 
 				log.Fatal("failed to convert timezone")
 			}
 
-			for currentDate.Before(period.End) {
+			for currentLocalDate.Before(period.End) {
 				updateDataForDate(&userCalendar, scheduleUserData, currentMonth, currentLocalDate)
-				currentDate = currentDate.Add(time.Minute * time.Duration(Config.RotationInfo.CheckRotationChangeEvery))
+				currentLocalDate = currentLocalDate.Add(time.Minute * time.Duration(Config.RotationInfo.CheckRotationChangeEvery))
 			}
 		}
 

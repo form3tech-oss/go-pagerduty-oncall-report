@@ -69,6 +69,8 @@ rotationInfo:
   dailyRotationStartsAt: 8
   checkRotationChangeEvery: 30 # minutes
 
+defaultUserTimezone: Europe/London # default user timezone for users that are in the report but their account has been excluded from PagerDuty
+
 defaultHolidayCalendar: uk # default calendar to use for users not specified in config, allows you to only define users with different calendars. If value not specified then fall back to old behaviour
 
 # Rotation excluded hours by day type

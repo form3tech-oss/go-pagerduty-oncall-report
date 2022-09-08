@@ -166,7 +166,7 @@ func Test_pagerDutyClient_convertToUserLocalTimezone(t *testing.T) {
 					Timezone: "America/New_York",
 				},
 			},
-			want:    "01 Sep 22 12:00 EDT",
+			want:    "01 Sep 22 12:00 EST",
 			wantErr: false,
 		},
 		{

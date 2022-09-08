@@ -158,15 +158,15 @@ func Test_pagerDutyClient_convertToUserLocalTimezone(t *testing.T) {
 		wantErr      bool
 	}{
 		{
-			name:         "Successfully converts schedule BST date to user's EDT local date",
-			scheduleDate: "01 Sep 22 17:00 BST",
+			name:         "Successfully converts schedule GMT date to user's EDT local date",
+			scheduleDate: "01 Sep 22 14:00 GMT",
 			cachedUsers: []*api.User{
 				{
 					ID:       "USER_ID",
 					Timezone: "America/New_York",
 				},
 			},
-			want:    "01 Sep 22 12:00 DST",
+			want:    "01 Sep 22 10:00 EDT",
 			wantErr: false,
 		},
 		{

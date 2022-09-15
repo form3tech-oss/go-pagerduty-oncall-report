@@ -3,8 +3,6 @@ package configuration
 import (
 	"fmt"
 	"log"
-
-	"github.com/form3tech-oss/go-pagerduty-oncall-report/api"
 )
 
 type RotationUser struct {
@@ -48,6 +46,7 @@ type ScheduleTimeRange struct {
 type Configuration struct {
 	PdAuthToken                string
 	DefaultHolidayCalendar     string
+	DefaultUserTimezone        string
 	ReportTimeRange            ReportTimeRange
 	RotationInfo               RotationInfo
 	RotationExcludedHours      []RotationExcludedHoursDay
@@ -84,19 +83,19 @@ func (c *Configuration) FindPriceByDay(dayType string) (*int, error) {
 	return nil, fmt.Errorf("day type %s not found", dayType)
 }
 
-func (c *Configuration) FindRotationExcludedHoursByDay(dayType string) (*RotationExcludedHoursDay, error) {
+func (c *Configuration) FindRotationExcludedHoursByDay(dayType string) *RotationExcludedHoursDay {
 	if excludedInfo, ok := c.cacheExcludedByDay[dayType]; ok {
-		return excludedInfo, nil
+		return excludedInfo
 	}
 
 	for _, rotationExcludedHours := range c.RotationExcludedHours {
 		if rotationExcludedHours.Day == dayType {
 			c.cacheExcludedByDay[rotationExcludedHours.Day] = &rotationExcludedHours
-			return &rotationExcludedHours, nil
+			return &rotationExcludedHours
 		}
 	}
 
-	return nil, fmt.Errorf("day type %s not found", dayType)
+	return nil
 }
 
 func (c *Configuration) FindRotationUserInfoByID(userID string) (*RotationUser, error) {
@@ -114,23 +113,13 @@ func (c *Configuration) FindRotationUserInfoByID(userID string) (*RotationUser, 
 		return nil, fmt.Errorf("user id %s not found", userID)
 	}
 
-	user, err := api.Client.GetUserById(userID)
-	if err != nil {
-		return nil, fmt.Errorf("could not find user from pagerduty api, err: %v", err)
-	}
-
-	if user == nil {
-		return nil, fmt.Errorf("user id %s not found", userID)
-	}
-
 	rotationUser := &RotationUser{
 		UserID:           userID,
-		Name:             user.Name,
 		HolidaysCalendar: c.DefaultHolidayCalendar, // default to config value
 	}
 
 	c.cacheRotationUsers[userID] = rotationUser
-	log.Printf("defaulting user %s id: %s to %s\n", user.Name, userID, c.DefaultHolidayCalendar)
+	log.Printf("defaulting user with id: %s to %s\n", userID, c.DefaultHolidayCalendar)
 
 	return rotationUser, nil
 }

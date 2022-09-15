@@ -83,19 +83,19 @@ func (c *Configuration) FindPriceByDay(dayType string) (*int, error) {
 	return nil, fmt.Errorf("day type %s not found", dayType)
 }
 
-func (c *Configuration) FindRotationExcludedHoursByDay(dayType string) (*RotationExcludedHoursDay, error) {
+func (c *Configuration) FindRotationExcludedHoursByDay(dayType string) *RotationExcludedHoursDay {
 	if excludedInfo, ok := c.cacheExcludedByDay[dayType]; ok {
-		return excludedInfo, nil
+		return excludedInfo
 	}
 
 	for _, rotationExcludedHours := range c.RotationExcludedHours {
 		if rotationExcludedHours.Day == dayType {
 			c.cacheExcludedByDay[rotationExcludedHours.Day] = &rotationExcludedHours
-			return &rotationExcludedHours, nil
+			return &rotationExcludedHours
 		}
 	}
 
-	return nil, fmt.Errorf("day type %s not found", dayType)
+	return nil
 }
 
 func (c *Configuration) FindRotationUserInfoByID(userID string) (*RotationUser, error) {

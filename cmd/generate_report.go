@@ -449,7 +449,7 @@ func updateDataForDate(calendar *configuration.BHCalendar, data *report.Schedule
 		}
 	} else {
 		if calendar.IsDateBankHoliday(date) {
-			excludedHours, _ := Config.FindRotationExcludedHoursByDay("bankholiday")
+			excludedHours := Config.FindRotationExcludedHoursByDay("bankholiday")
 			if excludedHours == nil {
 				//fmt.Printf("%s - Month: %d, time: %v -- bank holiday\n", data.Name, currentMonth, date)
 				data.NumBankHolidaysHours += 0.5
@@ -461,7 +461,7 @@ func updateDataForDate(calendar *configuration.BHCalendar, data *report.Schedule
 				data.NumBankHolidaysHours += 0.5
 			}
 		} else if calendar.IsWeekend(date) {
-			excludedHours, _ := Config.FindRotationExcludedHoursByDay("weekend")
+			excludedHours := Config.FindRotationExcludedHoursByDay("weekend")
 			if excludedHours == nil {
 				//fmt.Printf("%s - Month: %d, time: %v -- weekend\n", data.Name, currentMonth, date)
 				data.NumWeekendHours += 0.5
@@ -473,7 +473,7 @@ func updateDataForDate(calendar *configuration.BHCalendar, data *report.Schedule
 				data.NumWeekendHours += 0.5
 			}
 		} else {
-			excludedHours, _ := Config.FindRotationExcludedHoursByDay("weekday")
+			excludedHours := Config.FindRotationExcludedHoursByDay("weekday")
 			if excludedHours == nil {
 				//fmt.Printf("%s - Month: %d, time: %v -- weekday\n", data.Name, currentMonth, date)
 				data.NumWorkHours += 0.5

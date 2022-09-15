@@ -15,7 +15,7 @@ func (c *Configuration) GetPricesInfo() (*PricesInfo, error) {
 		return nil, err
 	}
 	excludedWeekDayHoursAmount := 0
-	excludedHours, _ := c.FindRotationExcludedHoursByDay("weekday")
+	excludedHours := c.FindRotationExcludedHoursByDay("weekday")
 	if excludedHours != nil {
 		excludedWeekDayHoursAmount = excludedHours.ExcludedEndsAt - excludedHours.ExcludedStartsAt
 	}
@@ -26,7 +26,7 @@ func (c *Configuration) GetPricesInfo() (*PricesInfo, error) {
 		return nil, err
 	}
 	excludedWeekendDayHoursAmount := 0
-	excludedHours, _ = c.FindRotationExcludedHoursByDay("weekend")
+	excludedHours = c.FindRotationExcludedHoursByDay("weekend")
 	if excludedHours != nil {
 		excludedWeekendDayHoursAmount = excludedHours.ExcludedEndsAt - excludedHours.ExcludedStartsAt
 	}
@@ -37,7 +37,7 @@ func (c *Configuration) GetPricesInfo() (*PricesInfo, error) {
 		return nil, err
 	}
 	excludedBhDayHoursAmount := 0
-	excludedHours, _ = c.FindRotationExcludedHoursByDay("bankholiday")
+	excludedHours = c.FindRotationExcludedHoursByDay("bankholiday")
 	if excludedHours != nil {
 		excludedBhDayHoursAmount = excludedHours.ExcludedEndsAt - excludedHours.ExcludedStartsAt
 	}

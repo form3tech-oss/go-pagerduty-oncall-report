@@ -98,7 +98,7 @@ func (c *Configuration) FindRotationExcludedHoursByDay(dayType string) (*Rotatio
 	return nil, fmt.Errorf("day type %s not found", dayType)
 }
 
-func (c *Configuration) FindRotationUserInfoByID(userID, userName string) (*RotationUser, error) {
+func (c *Configuration) FindRotationUserInfoByID(userID string) (*RotationUser, error) {
 	if rotationUser, ok := c.cacheRotationUsers[userID]; ok {
 		return rotationUser, nil
 	}
@@ -119,7 +119,7 @@ func (c *Configuration) FindRotationUserInfoByID(userID, userName string) (*Rota
 	}
 
 	c.cacheRotationUsers[userID] = rotationUser
-	log.Printf("defaulting user %s id: %s to %s\n", userName, userID, c.DefaultHolidayCalendar)
+	log.Printf("defaulting user with id: %s to %s\n", userID, c.DefaultHolidayCalendar)
 
 	return rotationUser, nil
 }

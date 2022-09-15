@@ -342,7 +342,7 @@ func (pd *pagerDutyClient) generateScheduleData(scheduleInfo *api.ScheduleInfo, 
 	}
 
 	for userID, userRotaInfo := range usersRotationData {
-		rotationUserConfig, err := Config.FindRotationUserInfoByID(userID, userRotaInfo.Name)
+		rotationUserConfig, err := Config.FindRotationUserInfoByID(userID)
 		if err != nil {
 			log.Println("Error:", err)
 			continue

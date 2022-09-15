@@ -121,12 +121,12 @@ func (s *ConfigStage) ANonExistingPriceIsRequested() *ConfigStage {
 }
 
 func (s *ConfigStage) AnExistingRotationInfoIsRequested() *ConfigStage {
-	s.mapValue, s.mapError = s.config.FindRotationUserInfoByID("ABCDEF1", "NAME")
+	s.mapValue, s.mapError = s.config.FindRotationUserInfoByID("ABCDEF1")
 	return s
 }
 
 func (s *ConfigStage) ANonExistingRotationInfoIsRequested() *ConfigStage {
-	s.mapValue, s.mapError = s.config.FindRotationUserInfoByID("NONE", "NAME")
+	s.mapValue, s.mapError = s.config.FindRotationUserInfoByID("NONE")
 	return s
 }
 

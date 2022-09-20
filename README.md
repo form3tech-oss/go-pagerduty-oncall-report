@@ -53,12 +53,15 @@ Use "pd-report [command] --help" for more information about a command.
 
 ## Configuration
 
-The configuration must be a `.yml` file (specified by the `--config` flag) with the following content:
+To run you must configure the PagerDuty token in your environment variables
+
+```shell
+export PD_AUTH_TOKEN=<YourSecretTokenHere>
+```
+
+The configuration of the application parameters must be in the `yaml` file (specified by the `--config` flag) with the following content:
 
 ```yml
-# PagerDuty auth token
-pdAuthToken: 12345
-
 # Explicitly set report time range (RFC822)
 reportTimeRange:
   start: 01 Jan 20 00:00 UTC

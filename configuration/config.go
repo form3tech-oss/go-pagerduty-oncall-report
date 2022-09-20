@@ -44,7 +44,8 @@ type ScheduleTimeRange struct {
 }
 
 type Configuration struct {
-	PdAuthToken                string
+	PdAuthToken string `mapstructure:"PD_AUTH_TOKEN"` // loads from env variable
+
 	DefaultHolidayCalendar     string
 	DefaultUserTimezone        string
 	ReportTimeRange            ReportTimeRange

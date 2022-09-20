@@ -66,6 +66,11 @@ func initConfig() {
 		log.Fatal("Can't read config: ", err)
 	}
 
+	viper.AutomaticEnv()
+	if err := viper.BindEnv("PD_AUTH_TOKEN"); err != nil {
+		log.Fatal(err)
+	}
+
 	Config = configuration.New()
 	err := viper.Unmarshal(&Config)
 	if err != nil {

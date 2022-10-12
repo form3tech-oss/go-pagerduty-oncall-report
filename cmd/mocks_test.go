@@ -13,6 +13,29 @@ type clientMock struct {
 	mock.Mock
 }
 
+// GetSchedule provides a mock function with given fields: scheduleID, startDate, endDate
+func (_m *clientMock) GetSchedule(scheduleID string, startDate string, endDate string) (*api.Schedule, error) {
+	ret := _m.Called(scheduleID, startDate, endDate)
+
+	var r0 *api.Schedule
+	if rf, ok := ret.Get(0).(func(string, string, string) *api.Schedule); ok {
+		r0 = rf(scheduleID, startDate, endDate)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*api.Schedule)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, string, string) error); ok {
+		r1 = rf(scheduleID, startDate, endDate)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // ListUsers provides a mock function with given fields:
 func (_m *clientMock) ListUsers() ([]*api.User, error) {
 	ret := _m.Called()

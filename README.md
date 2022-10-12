@@ -53,12 +53,15 @@ Use "pd-report [command] --help" for more information about a command.
 
 ## Configuration
 
-The configuration must be a `.yml` file (specified by the `--config` flag) with the following content:
+To run you must configure the PagerDuty token in your environment variables
+
+```shell
+export PD_AUTH_TOKEN=<YourSecretTokenHere>
+```
+
+The configuration of the application parameters must be in the `yaml` file (specified by the `--config` flag) with the following content:
 
 ```yml
-# PagerDuty auth token
-pdAuthToken: 12345
-
 # Explicitly set report time range (RFC822)
 reportTimeRange:
   start: 01 Jan 20 00:00 UTC
@@ -68,6 +71,8 @@ reportTimeRange:
 rotationInfo:
   dailyRotationStartsAt: 8
   checkRotationChangeEvery: 30 # minutes
+
+defaultUserTimezone: Europe/London # default user timezone for users that are in the report but their account has been excluded from PagerDuty
 
 defaultHolidayCalendar: uk # default calendar to use for users not specified in config, allows you to only define users with different calendars. If value not specified then fall back to old behaviour
 
@@ -120,7 +125,6 @@ schedulesToIgnore:
 
 ## Known limitations
 
-- `list-people` command: the pagination is not implemented (yet)
 - `report` command: no way to specify the output folder/filename for the pdf report
 - `calendars`:
   - there are only 2018 and 2019 uk bank holiday calendars defined

@@ -46,7 +46,7 @@ func (p *PagerDutyClient) ListSchedules() ([]*Schedule, error) {
 			scheduleList = append(scheduleList, convertSchedule(&schedule))
 		}
 		more = listSchedulesResponse.More
-		opts.Offset = listSchedulesResponse.Limit
+		opts.Offset += listSchedulesResponse.Limit
 	}
 
 	return scheduleList, nil

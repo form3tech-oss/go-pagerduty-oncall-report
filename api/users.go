@@ -7,23 +7,30 @@ import (
 )
 
 type User struct {
-	ID      string
-	Summary string
-	Name    string
-	Email   string
-	Teams   []Team
+	ID       string
+	Summary  string
+	Name     string
+	Email    string
+	Timezone string
+	Teams    []Team
 }
 
 func (p *PagerDutyClient) ListUsers() ([]*User, error) {
 	var opts pagerduty.ListUsersOptions
-	pdUserList, err := p.ApiClient.ListUsers(opts)
-	if err != nil {
-		return nil, err
-	}
-
 	var userList []*User
-	for _, user := range pdUserList.Users {
-		userList = append(userList, convertUser(&user))
+
+	more := true
+	for more {
+		listUsersResponse, err := p.ApiClient.ListUsers(opts)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, user := range listUsersResponse.Users {
+			userList = append(userList, convertUser(&user))
+		}
+		more = listUsersResponse.More
+		opts.Offset += listUsersResponse.Limit
 	}
 
 	return userList, nil
@@ -48,10 +55,11 @@ func convertUser(user *pagerduty.User) *User {
 	}
 
 	return &User{
-		ID:      user.ID,
-		Summary: user.Summary,
-		Name:    user.Name,
-		Email:   user.Email,
-		Teams:   userTeams,
+		ID:       user.ID,
+		Summary:  user.Summary,
+		Name:     user.Name,
+		Email:    user.Email,
+		Timezone: user.Timezone,
+		Teams:    userTeams,
 	}
 }

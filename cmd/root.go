@@ -23,10 +23,15 @@ type client interface {
 	ListTeams() ([]*api.Team, error)
 	ListServices(string) ([]*api.Service, error)
 	ListSchedules() ([]*api.Schedule, error)
+	GetSchedule(scheduleID, startDate, endDate string) (*api.Schedule, error)
 }
 
 type pagerDutyClient struct {
 	client client
+
+	cachedUsers []*api.User
+
+	defaultUserTimezone string
 }
 
 func init() {
@@ -61,13 +66,16 @@ func initConfig() {
 		log.Fatal("Can't read config: ", err)
 	}
 
+	viper.AutomaticEnv()
+	if err := viper.BindEnv("PD_AUTH_TOKEN"); err != nil {
+		log.Fatal(err)
+	}
+
 	Config = configuration.New()
 	err := viper.Unmarshal(&Config)
 	if err != nil {
 		log.Fatalf("%v, %#v", err, Config)
 	}
-
-	api.InitialisePagerDutyAPIClient(Config.PdAuthToken)
 }
 
 var rootCmd = &cobra.Command{

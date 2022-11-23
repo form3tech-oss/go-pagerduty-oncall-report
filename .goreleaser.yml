@@ -21,7 +21,7 @@ archives:
 brews:
   -
     name: pd-report
-    github:
+    tap:
       owner: form3tech-oss
       name: homebrew-tap
     folder: Formula

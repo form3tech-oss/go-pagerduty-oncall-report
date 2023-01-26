@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/form3tech-oss/go-pagerduty-oncall-report/api"
+
 	"github.com/spf13/cobra"
 )
 
@@ -11,15 +12,18 @@ var listTeamsCmd = &cobra.Command{
 	Use:   "teams",
 	Short: "list teams on PagerDuty",
 	Long:  "Get the list of teams configured in PagerDuty",
-	RunE:  listTeams,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		pd := &pagerDutyClient{client: api.NewPagerDutyAPIClient(Config.PdAuthToken)}
+		return pd.listTeams()
+	},
 }
 
 func init() {
 	rootCmd.AddCommand(listTeamsCmd)
 }
 
-func listTeams(cmd *cobra.Command, args []string) error {
-	teams, err := api.Client.ListTeams()
+func (pd *pagerDutyClient) listTeams() error {
+	teams, err := pd.client.ListTeams()
 	if err != nil {
 		return err
 	}

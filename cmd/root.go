@@ -2,21 +2,37 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 
-	"log"
-
-	"github.com/form3tech-oss/go-pagerduty-oncall-report/api"
-	"github.com/form3tech-oss/go-pagerduty-oncall-report/configuration"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/form3tech-oss/go-pagerduty-oncall-report/api"
+	"github.com/form3tech-oss/go-pagerduty-oncall-report/configuration"
 )
 
 var (
 	cfgFile string
 	Config  *configuration.Configuration
 )
+
+type client interface {
+	ListUsers() ([]*api.User, error)
+	ListTeams() ([]*api.Team, error)
+	ListServices(string) ([]*api.Service, error)
+	ListSchedules() ([]*api.Schedule, error)
+	GetSchedule(scheduleID, startDate, endDate string) (*api.Schedule, error)
+}
+
+type pagerDutyClient struct {
+	client client
+
+	cachedUsers []*api.User
+
+	defaultUserTimezone string
+}
 
 func init() {
 	cobra.OnInitialize(initConfig)
@@ -50,13 +66,16 @@ func initConfig() {
 		log.Fatal("Can't read config: ", err)
 	}
 
+	viper.AutomaticEnv()
+	if err := viper.BindEnv("PD_AUTH_TOKEN"); err != nil {
+		log.Fatal(err)
+	}
+
 	Config = configuration.New()
 	err := viper.Unmarshal(&Config)
 	if err != nil {
 		log.Fatalf("%v, %#v", err, Config)
 	}
-
-	api.InitialisePagerDutyAPIClient(Config.PdAuthToken)
 }
 
 var rootCmd = &cobra.Command{

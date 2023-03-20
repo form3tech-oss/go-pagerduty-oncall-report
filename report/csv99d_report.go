@@ -25,9 +25,6 @@ func (r *csvOncallReport) GenerateReport(data *PrintableData) (string, error) {
 	fmt.Println(separator)
 	fmt.Printf("| Generating report(s) from '%s' to '%s'\n", data.Start.Format("Mon Jan _2 15:04:05 2006"), data.End.Add(-time.Second).Format("Mon Jan _2 15:04:05 2006"))
 	fmt.Println(separator)
-	fmt.Println(separator)
-	fmt.Println("Test")
-	fmt.Println(separator)
 
 	header := []string{"User", "Weekday Hours", "Weekday Days", "Weekend Hours", "Weekend Days", "Holiday Hours", "Holiday Days", "Manager Approval"}
 

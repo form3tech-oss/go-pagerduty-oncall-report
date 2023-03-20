@@ -29,6 +29,7 @@ Usage:
 
 Available Commands:
   help        Help about any command
+  report99d   generates the 99report(s) for the given schedule(s) id(s)
   report      generates the report(s) for the given schedule(s) id(s)
   schedules   list schedules on PagerDuty
   services    list services on PagerDuty
@@ -60,7 +61,7 @@ Use "pd-report [command] --help" for more information about a command.
 
 ## Configuration
 
-To run you must configure the PagerDuty token in your environment variables
+To run you must configure the PagerDuty token in your environment variables. The Token is available in the 1Password - security note 'Pagerduty API Credential'.
 
 ```shell
 export PD_AUTH_TOKEN=<YourSecretTokenHere>

@@ -1,7 +1,7 @@
 # Explicitly set report time range (RFC822)
 reportTimeRange:
   start: 01 Dec 22 00:00 AEDT
-  end: 31 Jan 23 00:00 AEDT
+  end: 20 Mar 23 00:00 AEDT
 
 # Rotation general information
 rotationInfo:
@@ -25,9 +25,9 @@ rotationPrices:
     - day: weekday
       price: 1
     - day: weekend
-      price: 2
+      price: 1
     - day: bankholiday
-      price: 2
+      price: 1
 
 # List of users to be considered for the rotation
 # Each one should be specifying a calendar for the bank holidays

@@ -120,17 +120,22 @@ func (pd *pagerDutyClient) processArguments() []Schedule {
 				}
 
 				var thisEndDate time.Time
+				isOveridden := false
 				if _, ok := endOverrides[schedule.ID]; ok {
 					thisEndDate = endOverrides[schedule.ID]
+					isOveridden = true
 				} else {
 					thisEndDate = defaultEndDate
 				}
 
-				schedules = append(schedules, Schedule{
-					id:        schedule.ID,
-					startDate: thisStartDate,
-					endDate:   thisEndDate,
-				})
+				// Ignore this schedule if its overridden and the dates are not in our report range
+				if !isOveridden || !defaultStartDate.After(thisEndDate) {
+					schedules = append(schedules, Schedule{
+						id:        schedule.ID,
+						startDate: thisStartDate,
+						endDate:   thisEndDate,
+					})
+				}
 
 				log.Printf("[%s] defaultStartDate: %s, defaultEndDate: %s", schedule.ID, thisStartDate, thisEndDate)
 

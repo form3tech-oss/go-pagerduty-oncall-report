@@ -1,19 +1,23 @@
 # https://www.gov.uk/bank-holidays
 ---
 - title: "New Year’s Day (substitute day)"
+  date: 03/01/2023
+- title: "Day after New Year’s Day"
   date: 02/01/2023
+- title: "Waitangi Day"
+  date: 06/02/2023
 - title: "Good Friday"
   date: 07/04/2023
 - title: "Easter Monday"
   date: 10/04/2023
-- title: "Early May"
-  date: 01/05/2023
-- title: "Bank holiday for the coronation of King Charles III"
-  date: 08/05/2023
-- title: "Spring"
-  date: 29/05/2023
-- title: "Summer"
-  date: 28/08/2023
+- title: "Anzac Day"
+  date: 25/04/2023
+- title: "King’s Birthday"
+  date: 05/06/2023
+- title: "Matariki"
+  date: 14/07/2023
+- title: "Labour Day"
+  date: 23/08/2023
 - title: "Christmas Day"
   date: 25/12/2023
 - title: "Boxing Day"

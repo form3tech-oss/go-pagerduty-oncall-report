@@ -134,7 +134,6 @@ schedulesToIgnore:
 
 - `report` command: no way to specify the output folder/filename for the pdf report
 - `calendars`:
-  - there are only 2018 and 2019 uk bank holiday calendars defined
   - there is no possibility to load external calendars (yet)
 
 

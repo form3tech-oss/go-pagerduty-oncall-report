@@ -1,4 +1,4 @@
-# https://ajuntament.barcelona.cat/calendarifestius/en/
+# https://www.calendario-laboral.com/castelldefels-2023
 ---
 - title: "Epiphany / Three Kings’ Day"
   date: "06/01/2023"
@@ -10,6 +10,8 @@
   date: "01/05/2023"
 - title: "Sant Joan / Midsummer solstice"
   date: "24/06/2023"
+- title: "Local holiday"
+  date: "14/08/2023"
 - title: "Assumption of Mary"
   date: "15/08/2023"
 - title: "Catalan National Day"
@@ -20,6 +22,8 @@
   date: "01/11/2023"
 - title: "National Day of Spain"
   date: "06/12/2023"
+- title: "Local holiday"
+  date: "07/12/2023"
 - title: "Feast of the Immaculate Conception"
   date: "08/12/2023"
 - title: "Christmas"

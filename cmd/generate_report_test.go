@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"errors"
-	"github.com/form3tech-oss/go-pagerduty-oncall-report/api"
 	"testing"
 	"time"
+
+	"github.com/form3tech-oss/go-pagerduty-oncall-report/api"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -134,6 +135,85 @@ func Test_pagerDutyClient_getUserTimezone(t *testing.T) {
 			}
 
 			got, err := pd.getUserTimezone("USER_ID")
+			mockedClient.AssertExpectations(t)
+
+			if tt.wantErr == true {
+				require.Error(t, err)
+				return
+			}
+
+			require.NoError(t, err)
+
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func Test_pagerDutyClient_getUserEmailAddress(t *testing.T) {
+	tests := []struct {
+		name                string
+		cachedUsers         []*api.User
+		defaultUserTimezone string
+		mockSetup           func(mock *clientMock)
+		want                string
+		wantErr             bool
+	}{
+		{
+			name: "Successfully find the user email address",
+			cachedUsers: []*api.User{
+				{
+					ID:    "USER_ID",
+					Email: "anyUser@anyDomain.com",
+				},
+			},
+			want:    "anyUser@anyDomain.com",
+			wantErr: false,
+		},
+		{
+			name: "User with empty email address will receive empty string",
+			cachedUsers: []*api.User{
+				{
+					ID: "USER_ID",
+				},
+			},
+			want:    "",
+			wantErr: false,
+		},
+		{
+			name: "User not cached will receive empty email address",
+			cachedUsers: []*api.User{
+				{
+					ID: "NOT_THE_USER_ID",
+				},
+			},
+			want:    "",
+			wantErr: false,
+		},
+		{
+			name: "If user not cached it will load users in cache and successfully return email address",
+			mockSetup: func(mock *clientMock) {
+				mock.On("ListUsers").Once().Return([]*api.User{
+					{ID: "USER_ID", Email: "anyUser@anyDomain.com"},
+				}, nil)
+			},
+			want:    "anyUser@anyDomain.com",
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockedClient := &clientMock{}
+			if tt.mockSetup != nil {
+				tt.mockSetup(mockedClient)
+			}
+
+			pd := pagerDutyClient{
+				client:              mockedClient,
+				cachedUsers:         tt.cachedUsers,
+				defaultUserTimezone: tt.defaultUserTimezone,
+			}
+
+			got, err := pd.getUserEmail("USER_ID")
 			mockedClient.AssertExpectations(t)
 
 			if tt.wantErr == true {

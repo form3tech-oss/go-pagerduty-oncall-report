@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	matrixRowFormat = "%-23s %8v %8v %11v %10v %10v %13v %9v"
+	matrixRowFormat = "%-40s %8v %8v %10v %8v %8v %12v %10v"
 )
 
 type pdfReport struct {
@@ -57,7 +57,11 @@ func (r *pdfReport) GenerateReport(data *PrintableData) (string, error) {
 
 		pdf.SetFont("Arial", "B", 13)
 		pdf.CellFormat(0, 5,
-			fmt.Sprintf("  Schedule: '%s' (%s)", scheduleData.Name, scheduleData.ID),
+			fmt.Sprintf("  Schedule name: '%s'", scheduleData.Name),
+			"L", 0, "L", false, 0, "")
+		pdf.Ln(8)
+		pdf.CellFormat(0, 5,
+			fmt.Sprintf("  Schedule ID: %s", scheduleData.ID),
 			"L", 0, "L", false, 0, "")
 		pdf.Ln(8)
 
@@ -66,13 +70,13 @@ func (r *pdfReport) GenerateReport(data *PrintableData) (string, error) {
 			"L", 0, "L", false, 0, "")
 		pdf.Ln(8)
 
-		pdf.SetFont("Courier", "B", 9)
+		pdf.SetFont("Courier", "B", 8)
 		pdf.CellFormat(0, 5,
 			fmt.Sprintf(matrixRowFormat, "USER", "WEEKDAY", "WEEKEND", "B. HOLIDAY", "WEEKDAY", "WEEKEND", "B. HOLIDAY", "TOTAL"),
 			"", 0, "L", false, 0, "")
 		pdf.Ln(3)
 		pdf.CellFormat(0, 5,
-			fmt.Sprintf(matrixRowFormat, "", "HOURS", "HOURS", "HOURS", "AMOUNT", "AMOUNT", "AMOUNT", "AMOUNT"),
+			fmt.Sprintf(matrixRowFormat, "EMAIL", "HOURS", "HOURS", "HOURS", "AMOUNT", "AMOUNT", "AMOUNT", "AMOUNT"),
 			"", 0, "L", false, 0, "")
 		pdf.Ln(3)
 		pdf.CellFormat(0, 5,
@@ -80,7 +84,7 @@ func (r *pdfReport) GenerateReport(data *PrintableData) (string, error) {
 			"B", 0, "L", false, 0, "")
 		pdf.Ln(5)
 
-		pdf.SetFont("Courier", "", 9)
+		pdf.SetFont("Courier", "", 8)
 
 		sort.Slice(scheduleData.RotaUsers, func(i, j int) bool {
 			return strings.Compare(scheduleData.RotaUsers[i].Name, scheduleData.RotaUsers[j].Name) < 1
@@ -99,12 +103,12 @@ func (r *pdfReport) GenerateReport(data *PrintableData) (string, error) {
 				"", 0, "L", false, 0, "")
 			pdf.Ln(3)
 			pdf.CellFormat(0, 5,
-				fmt.Sprintf(matrixRowFormat, "_______________________",
+				fmt.Sprintf(matrixRowFormat, tr(userData.EmailAddress),
 					fmt.Sprintf("%.1f d", userData.NumWorkDays),
 					fmt.Sprintf("%.1f d", userData.NumWeekendDays),
 					fmt.Sprintf("%.1f d", userData.NumBankHolidaysDays),
-					"__________", "__________", "_____________", "_________"),
-				"", 0, "L", false, 0, "")
+					"", "", "", ""),
+				"B", 0, "L", false, 0, "")
 			pdf.Ln(5)
 		}
 
@@ -118,13 +122,13 @@ func (r *pdfReport) GenerateReport(data *PrintableData) (string, error) {
 		"L", 0, "L", false, 0, "")
 	pdf.Ln(8)
 
-	pdf.SetFont("Courier", "B", 9)
+	pdf.SetFont("Courier", "B", 8)
 	pdf.CellFormat(0, 5,
 		fmt.Sprintf(matrixRowFormat, "USER", "WEEKDAY", "WEEKEND", "B. HOLIDAY", "WEEKDAY", "WEEKEND", "B. HOLIDAY", "TOTAL"),
 		"", 0, "L", false, 0, "")
 	pdf.Ln(3)
 	pdf.CellFormat(0, 5,
-		fmt.Sprintf(matrixRowFormat, "", "HOURS", "HOURS", "HOURS", "AMOUNT", "AMOUNT", "AMOUNT", "AMOUNT"),
+		fmt.Sprintf(matrixRowFormat, "EMAIL", "HOURS", "HOURS", "HOURS", "AMOUNT", "AMOUNT", "AMOUNT", "AMOUNT"),
 		"", 0, "L", false, 0, "")
 	pdf.Ln(3)
 	pdf.CellFormat(0, 5,
@@ -136,7 +140,7 @@ func (r *pdfReport) GenerateReport(data *PrintableData) (string, error) {
 		return strings.Compare(data.UsersSchedulesSummary[i].Name, data.UsersSchedulesSummary[j].Name) < 1
 	})
 
-	pdf.SetFont("Courier", "", 9)
+	pdf.SetFont("Courier", "", 8)
 	for _, userData := range data.UsersSchedulesSummary {
 		pdf.CellFormat(0, 5,
 			fmt.Sprintf(matrixRowFormat, tr(userData.Name),
@@ -150,12 +154,12 @@ func (r *pdfReport) GenerateReport(data *PrintableData) (string, error) {
 			"", 0, "L", false, 0, "")
 		pdf.Ln(3)
 		pdf.CellFormat(0, 5,
-			fmt.Sprintf(matrixRowFormat, "_______________________",
+			fmt.Sprintf(matrixRowFormat, tr(userData.EmailAddress),
 				fmt.Sprintf("%.1f d", userData.NumWorkDays),
 				fmt.Sprintf("%.1f d", userData.NumWeekendDays),
 				fmt.Sprintf("%.1f d", userData.NumBankHolidaysDays),
-				"__________", "__________", "_____________", "_________"),
-			"", 0, "L", false, 0, "")
+				"", "", "", ""),
+			"B", 0, "L", false, 0, "")
 		pdf.Ln(5)
 	}
 

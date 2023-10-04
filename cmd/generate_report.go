@@ -256,7 +256,8 @@ func calculateSummaryData(data []*report.ScheduleData, pricesInfo *configuration
 			userSummary, ok := usersSummary[schedUser.Name]
 			if !ok {
 				userSummary = &report.ScheduleUser{
-					Name: schedUser.Name,
+					Name:         schedUser.Name,
+					EmailAddress: schedUser.EmailAddress,
 				}
 				usersSummary[schedUser.Name] = userSummary
 			}
@@ -359,8 +360,14 @@ func (pd *pagerDutyClient) generateScheduleData(scheduleInfo *api.ScheduleInfo, 
 			return nil, fmt.Errorf("aborted due to calendar '%s' not found for user '%s'", calendarName, userID)
 		}
 
+		userEmailAddress, err := pd.getUserEmail(userRotaInfo.ID)
+		if err != nil {
+			return nil, fmt.Errorf("aborted due to failed to get user's email address: %w", err)
+		}
+
 		scheduleUserData := &report.ScheduleUser{
-			Name: userRotaInfo.Name,
+			Name:         userRotaInfo.Name,
+			EmailAddress: userEmailAddress,
 		}
 
 		for _, period := range userRotaInfo.Periods {
@@ -443,6 +450,25 @@ func (pd *pagerDutyClient) getUserTimezone(userID string) (string, error) {
 	}
 
 	return timezone, nil
+}
+
+func (pd *pagerDutyClient) getUserEmail(userID string) (string, error) {
+	var email string
+
+	if len(pd.cachedUsers) == 0 {
+		err := pd.loadUsersInMemoryCache()
+		if err != nil {
+			return "", fmt.Errorf("failed to get user with id %s email: %w", userID, err)
+		}
+	}
+
+	for _, user := range pd.cachedUsers {
+		if user.ID == userID {
+			email = user.Email
+		}
+	}
+
+	return email, nil
 }
 
 func updateDataForDate(calendar *configuration.BHCalendar, data *report.ScheduleUser, currentMonth time.Month, date time.Time) {

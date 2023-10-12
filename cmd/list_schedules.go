@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/form3tech-oss/go-pagerduty-oncall-report/api"
+
 	"github.com/spf13/cobra"
 )
 
@@ -11,15 +12,18 @@ var listSchedulesCmd = &cobra.Command{
 	Use:   "schedules",
 	Short: "list schedules on PagerDuty",
 	Long:  "Get the list of schedules configured in PagerDuty",
-	RunE:  listSchedules,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		pd := &pagerDutyClient{client: api.NewPagerDutyAPIClient(Config.PdAuthToken)}
+		return pd.listSchedules()
+	},
 }
 
 func init() {
 	rootCmd.AddCommand(listSchedulesCmd)
 }
 
-func listSchedules(cmd *cobra.Command, args []string) error {
-	schedules, err := api.Client.ListSchedules()
+func (pd *pagerDutyClient) listSchedules() error {
+	schedules, err := pd.client.ListSchedules()
 	if err != nil {
 		return err
 	}

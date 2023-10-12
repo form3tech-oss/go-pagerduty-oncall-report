@@ -2,13 +2,14 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/mitchellh/go-homedir"
 	"log"
 	"time"
 
 	"github.com/form3tech-oss/go-pagerduty-oncall-report/api"
 	"github.com/form3tech-oss/go-pagerduty-oncall-report/configuration"
 	"github.com/form3tech-oss/go-pagerduty-oncall-report/report"
+
+	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 )
 
@@ -17,7 +18,13 @@ var (
 		Use:   "report",
 		Short: "generates the report(s) for the given schedule(s) id(s)",
 		Long:  "Generates the report of the given list of schedules or all (except the ignored ones configured in yml)",
-		RunE:  generateReport,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			pd := &pagerDutyClient{
+				client:              api.NewPagerDutyAPIClient(Config.PdAuthToken),
+				defaultUserTimezone: Config.DefaultUserTimezone,
+			}
+			return pd.generateReport()
+		},
 	}
 
 	rawSchedules []string
@@ -47,8 +54,7 @@ func contains(s []string, e string) bool {
 	return false
 }
 
-func processArguments() []Schedule {
-
+func (pd *pagerDutyClient) processArguments() []Schedule {
 	if !contains([]string{"console", "pdf", "csv"}, outputFormat) {
 		log.Printf("output format %s not supported. Defaulting to 'console'", outputFormat)
 		outputFormat = "console"
@@ -99,7 +105,7 @@ func processArguments() []Schedule {
 
 	schedules := make([]Schedule, 0)
 	if len(rawSchedules) == 1 && rawSchedules[0] == "all" {
-		schedulesList, err := api.Client.ListSchedules()
+		schedulesList, err := pd.client.ListSchedules()
 		if err != nil {
 			log.Fatalln(fmt.Sprintf("Error getting the schedules list: %s", err.Error()))
 		}
@@ -114,17 +120,22 @@ func processArguments() []Schedule {
 				}
 
 				var thisEndDate time.Time
+				isOveridden := false
 				if _, ok := endOverrides[schedule.ID]; ok {
 					thisEndDate = endOverrides[schedule.ID]
+					isOveridden = true
 				} else {
 					thisEndDate = defaultEndDate
 				}
 
-				schedules = append(schedules, Schedule{
-					id:        schedule.ID,
-					startDate: thisStartDate,
-					endDate:   thisEndDate,
-				})
+				// Ignore this schedule if its overridden and the dates are not in our report range
+				if !isOveridden || !defaultStartDate.After(thisEndDate) {
+					schedules = append(schedules, Schedule{
+						id:        schedule.ID,
+						startDate: thisStartDate,
+						endDate:   thisEndDate,
+					})
+				}
 
 				log.Printf("[%s] defaultStartDate: %s, defaultEndDate: %s", schedule.ID, thisStartDate, thisEndDate)
 
@@ -165,8 +176,8 @@ func processArguments() []Schedule {
 	return schedules
 }
 
-func generateReport(cmd *cobra.Command, args []string) error {
-	input := processArguments()
+func (pd *pagerDutyClient) generateReport() error {
+	input := pd.processArguments()
 
 	firstStartDate := time.Now()
 	lastEndDate := time.Time{}
@@ -186,7 +197,7 @@ func generateReport(cmd *cobra.Command, args []string) error {
 		SchedulesData: make([]*report.ScheduleData, 0),
 	}
 
-	pricesInfo, err := generatePricesInfo()
+	pricesInfo, err := Config.GetPricesInfo()
 	if err != nil {
 		return err
 	}
@@ -197,7 +208,7 @@ func generateReport(cmd *cobra.Command, args []string) error {
 
 	for _, schedule := range input {
 		log.Printf("Loading information for the schedule '%s'", schedule.id)
-		scheduleInfo, err := getScheduleInformation(schedule.id, schedule.startDate, schedule.endDate)
+		scheduleInfo, err := pd.getScheduleInformation(schedule.id, schedule.startDate, schedule.endDate)
 		if err != nil {
 			return err
 		}
@@ -207,7 +218,7 @@ func generateReport(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		scheduleData, err := generateScheduleData(scheduleInfo, usersRotationData, pricesInfo, schedule)
+		scheduleData, err := pd.generateScheduleData(scheduleInfo, usersRotationData, pricesInfo, schedule)
 		if err != nil {
 			return err
 		}
@@ -237,8 +248,7 @@ func generateReport(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func calculateSummaryData(data []*report.ScheduleData, pricesInfo *PricesInfo) []*report.ScheduleUser {
-
+func calculateSummaryData(data []*report.ScheduleData, pricesInfo *configuration.PricesInfo) []*report.ScheduleUser {
 	usersSummary := make(map[string]*report.ScheduleUser)
 
 	for _, schedData := range data {
@@ -246,7 +256,8 @@ func calculateSummaryData(data []*report.ScheduleData, pricesInfo *PricesInfo) [
 			userSummary, ok := usersSummary[schedUser.Name]
 			if !ok {
 				userSummary = &report.ScheduleUser{
-					Name: schedUser.Name,
+					Name:         schedUser.Name,
+					EmailAddress: schedUser.EmailAddress,
 				}
 				usersSummary[schedUser.Name] = userSummary
 			}
@@ -272,8 +283,8 @@ func calculateSummaryData(data []*report.ScheduleData, pricesInfo *PricesInfo) [
 	return result
 }
 
-func getScheduleInformation(scheduleID string, startDate, endDate time.Time) (*api.ScheduleInfo, error) {
-	schedule, err := api.Client.GetSchedule(scheduleID,
+func (pd *pagerDutyClient) getScheduleInformation(scheduleID string, startDate, endDate time.Time) (*api.ScheduleInfo, error) {
+	schedule, err := pd.client.GetSchedule(scheduleID,
 		startDate.Format("2006-01-02T15:04:05"),
 		endDate.Format("2006-01-02T15:04:05"))
 	if err != nil {
@@ -325,8 +336,8 @@ func getUsersRotationData(scheduleInfo *api.ScheduleInfo) (api.ScheduleUserRotat
 	return usersInfo, nil
 }
 
-func generateScheduleData(scheduleInfo *api.ScheduleInfo, usersRotationData api.ScheduleUserRotationData,
-	pricesInfo *PricesInfo, schedule Schedule) (*report.ScheduleData, error) {
+func (pd *pagerDutyClient) generateScheduleData(scheduleInfo *api.ScheduleInfo, usersRotationData api.ScheduleUserRotationData,
+	pricesInfo *configuration.PricesInfo, schedule Schedule) (*report.ScheduleData, error) {
 
 	scheduleData := &report.ScheduleData{
 		ID:        scheduleInfo.ID,
@@ -346,19 +357,31 @@ func generateScheduleData(scheduleInfo *api.ScheduleInfo, usersRotationData api.
 		calendarName := fmt.Sprintf("%s-%d", rotationUserConfig.HolidaysCalendar, scheduleInfo.Start.Year())
 		userCalendar, present := configuration.BankHolidaysCalendars[calendarName]
 		if !present {
-			return nil, fmt.Errorf("calendar '%s' not found for user '%s'. Aborting", calendarName, userID)
+			return nil, fmt.Errorf("aborted due to calendar '%s' not found for user '%s'", calendarName, userID)
+		}
+
+		userEmailAddress, err := pd.getUserEmail(userRotaInfo.ID)
+		if err != nil {
+			return nil, fmt.Errorf("aborted due to failed to get user's email address: %w", err)
 		}
 
 		scheduleUserData := &report.ScheduleUser{
-			Name: userRotaInfo.Name,
+			Name:         userRotaInfo.Name,
+			EmailAddress: userEmailAddress,
 		}
 
 		for _, period := range userRotaInfo.Periods {
 			currentMonth := period.Start.Month()
 			currentDate := period.Start
-			for currentDate.Before(period.End) {
-				updateDataForDate(&userCalendar, scheduleUserData, currentMonth, currentDate)
-				currentDate = currentDate.Add(time.Minute * time.Duration(Config.RotationInfo.CheckRotationChangeEvery))
+
+			currentLocalDate, err := pd.convertToUserLocalTimezone(currentDate, userRotaInfo.ID)
+			if err != nil {
+				return nil, fmt.Errorf("aborted due to failed to convert to user local timezone: %w", err)
+			}
+
+			for currentLocalDate.Before(period.End) {
+				updateDataForDate(&userCalendar, scheduleUserData, currentMonth, currentLocalDate)
+				currentLocalDate = currentLocalDate.Add(time.Minute * time.Duration(Config.RotationInfo.CheckRotationChangeEvery))
 			}
 		}
 
@@ -377,8 +400,78 @@ func generateScheduleData(scheduleInfo *api.ScheduleInfo, usersRotationData api.
 	return scheduleData, nil
 }
 
-func updateDataForDate(calendar *configuration.BHCalendar, data *report.ScheduleUser, currentMonth time.Month, date time.Time) {
+func (pd *pagerDutyClient) convertToUserLocalTimezone(scheduleDate time.Time, userID string) (time.Time, error) {
+	timezone, err := pd.getUserTimezone(userID)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("failed to find user local timezone, Aborting: %w", err)
+	}
 
+	location, err := time.LoadLocation(timezone)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("failed to load location by timezone: %w", err)
+	}
+
+	currentLocalDate := scheduleDate.In(location)
+	if currentLocalDate.IsZero() {
+		return time.Time{}, fmt.Errorf("failed to convert timezone")
+	}
+
+	return currentLocalDate, nil
+}
+
+func (pd *pagerDutyClient) loadUsersInMemoryCache() error {
+	users, err := pd.client.ListUsers()
+	if err != nil {
+		return fmt.Errorf("failed to load users in memory: %w", err)
+	}
+
+	pd.cachedUsers = users
+	return nil
+}
+
+func (pd *pagerDutyClient) getUserTimezone(userID string) (string, error) {
+	var timezone string
+
+	if len(pd.cachedUsers) == 0 {
+		err := pd.loadUsersInMemoryCache()
+		if err != nil {
+			return "", fmt.Errorf("failed to get user with id %s timezone: %w", userID, err)
+		}
+	}
+
+	for _, user := range pd.cachedUsers {
+		if user.ID == userID {
+			timezone = user.Timezone
+		}
+	}
+
+	if timezone == "" {
+		timezone = pd.defaultUserTimezone
+	}
+
+	return timezone, nil
+}
+
+func (pd *pagerDutyClient) getUserEmail(userID string) (string, error) {
+	var email string
+
+	if len(pd.cachedUsers) == 0 {
+		err := pd.loadUsersInMemoryCache()
+		if err != nil {
+			return "", fmt.Errorf("failed to get user with id %s email: %w", userID, err)
+		}
+	}
+
+	for _, user := range pd.cachedUsers {
+		if user.ID == userID {
+			email = user.Email
+		}
+	}
+
+	return email, nil
+}
+
+func updateDataForDate(calendar *configuration.BHCalendar, data *report.ScheduleUser, currentMonth time.Month, date time.Time) {
 	if date.Hour() < Config.RotationInfo.DailyRotationStartsAt {
 		newDate := date.Add(time.Hour * time.Duration(-(date.Hour() + 1))) // move to yesterday night to determine which kind of day it was
 		// if yesterday night was last month, ignore the date
@@ -387,7 +480,7 @@ func updateDataForDate(calendar *configuration.BHCalendar, data *report.Schedule
 		}
 	} else {
 		if calendar.IsDateBankHoliday(date) {
-			excludedHours, _ := Config.FindRotationExcludedHoursByDay("bankholiday")
+			excludedHours := Config.FindRotationExcludedHoursByDay("bankholiday")
 			if excludedHours == nil {
 				//fmt.Printf("%s - Month: %d, time: %v -- bank holiday\n", data.Name, currentMonth, date)
 				data.NumBankHolidaysHours += 0.5
@@ -399,7 +492,7 @@ func updateDataForDate(calendar *configuration.BHCalendar, data *report.Schedule
 				data.NumBankHolidaysHours += 0.5
 			}
 		} else if calendar.IsWeekend(date) {
-			excludedHours, _ := Config.FindRotationExcludedHoursByDay("weekend")
+			excludedHours := Config.FindRotationExcludedHoursByDay("weekend")
 			if excludedHours == nil {
 				//fmt.Printf("%s - Month: %d, time: %v -- weekend\n", data.Name, currentMonth, date)
 				data.NumWeekendHours += 0.5
@@ -411,7 +504,7 @@ func updateDataForDate(calendar *configuration.BHCalendar, data *report.Schedule
 				data.NumWeekendHours += 0.5
 			}
 		} else {
-			excludedHours, _ := Config.FindRotationExcludedHoursByDay("weekday")
+			excludedHours := Config.FindRotationExcludedHoursByDay("weekday")
 			if excludedHours == nil {
 				//fmt.Printf("%s - Month: %d, time: %v -- weekday\n", data.Name, currentMonth, date)
 				data.NumWorkHours += 0.5
@@ -424,58 +517,4 @@ func updateDataForDate(calendar *configuration.BHCalendar, data *report.Schedule
 			}
 		}
 	}
-}
-
-type PricesInfo struct {
-	WeekDayHourlyPrice    float32
-	HoursWeekDay          int
-	WeekendDayHourlyPrice float32
-	HoursWeekendDay       int
-	BhDayHourlyPrice      float32
-	HoursBhDay            int
-}
-
-func generatePricesInfo() (*PricesInfo, error) {
-
-	weekDayPrice, err := Config.FindPriceByDay("weekday")
-	if err != nil {
-		return nil, err
-	}
-	excludedWeekDayHoursAmount := 0
-	excludedHours, _ := Config.FindRotationExcludedHoursByDay("weekday")
-	if excludedHours != nil {
-		excludedWeekDayHoursAmount = excludedHours.ExcludedEndsAt - excludedHours.ExcludedStartsAt
-	}
-	weekDayWorkingHours := 24 - excludedWeekDayHoursAmount
-
-	weekendDayPrice, err := Config.FindPriceByDay("weekend")
-	if err != nil {
-		return nil, err
-	}
-	excludedWeekendDayHoursAmount := 0
-	excludedHours, _ = Config.FindRotationExcludedHoursByDay("weekend")
-	if excludedHours != nil {
-		excludedWeekendDayHoursAmount = excludedHours.ExcludedEndsAt - excludedHours.ExcludedStartsAt
-	}
-	weekendDayWorkingHours := 24 - excludedWeekendDayHoursAmount
-
-	bhDayPrice, err := Config.FindPriceByDay("bankholiday")
-	if err != nil {
-		return nil, err
-	}
-	excludedBhDayHoursAmount := 0
-	excludedHours, _ = Config.FindRotationExcludedHoursByDay("bankholiday")
-	if excludedHours != nil {
-		excludedBhDayHoursAmount = excludedHours.ExcludedEndsAt - excludedHours.ExcludedStartsAt
-	}
-	bhWorkingHours := 24 - excludedBhDayHoursAmount
-
-	return &PricesInfo{
-		WeekDayHourlyPrice:    float32(*weekDayPrice) / float32(weekDayWorkingHours),
-		HoursWeekDay:          weekDayWorkingHours,
-		WeekendDayHourlyPrice: float32(*weekendDayPrice) / float32(weekendDayWorkingHours),
-		HoursWeekendDay:       weekendDayWorkingHours,
-		BhDayHourlyPrice:      float32(*bhDayPrice) / float32(bhWorkingHours),
-		HoursBhDay:            bhWorkingHours,
-	}, nil
 }

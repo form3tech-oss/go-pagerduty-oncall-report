@@ -1,0 +1,31 @@
+# Barcelona city holidays for 2023.
+# Includes regional and state holidays
+# https://ajuntament.barcelona.cat/calendarifestius/en/
+---
+- title: "Epiphany of the Lord"
+  date: 06/01/2023
+- title: "Good Friday"
+  date: 07/04/2023
+- title: "Easter Monday"
+  date: 10/04/2023
+- title: "Labor day"
+  date: 01/05/2023
+- title: "Sant Joan Midsummer solstice"
+  date: 24/06/2023
+- title: "Assumption of the Virgin"
+  date: 15/08/2023
+- title: "Catalan National Day"
+  date: 11/09/2023
+- title: "Spanish National Holiday"
+  date: 12/10/2023
+- title: "All Saints"
+  date: 01/11/2023
+- title: "National Day of Spain"
+  date: 06/12/2023
+- title: "Day of the Immaculate Conception"
+  date: 08/12/2023
+- title: "Christmas day"
+  date: 25/12/2023
+- title: "Boxing day"
+  date: 26/12/2023
+  

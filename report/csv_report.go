@@ -28,7 +28,7 @@ func (r *csvReport) GenerateReport(data *PrintableData) (string, error) {
 	fmt.Println(fmt.Sprintf("| Generating report(s) from '%s' to '%s'", data.Start.Format("Mon Jan _2 15:04:05 2006"), data.End.Add(time.Second*-1).Format("Mon Jan _2 15:04:05 2006")))
 	fmt.Println(separator)
 
-	header := []string{"User",
+	header := []string{"User", "Email",
 		"Weekday Hours", "Weekday Days", "Weekend Hours", "Weekend Days", "Bank Holiday Hours", "Bank Holiday Days",
 		"Total Weekday Amount (" + r.currency + ")", "Total Weekend Amount (" + r.currency + ")",
 		"Total Bank Holiday Amount (" + r.currency + ")", "Total  Amount (" + r.currency + ")"}
@@ -120,7 +120,7 @@ func (r *csvReport) writeSingleRotation(scheduleData *ScheduleData, data *Printa
 }
 
 func writeUser(userData *ScheduleUser, w *csv.Writer) error {
-	dat := []string{userData.Name,
+	dat := []string{userData.Name, userData.EmailAddress,
 		fmt.Sprintf("%v", userData.NumWorkHours),
 		fmt.Sprintf("%.1f", userData.NumWorkDays),
 		fmt.Sprintf("%v", userData.NumWeekendHours),

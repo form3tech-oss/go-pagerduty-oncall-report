@@ -1,0 +1,27 @@
+# https://www.officeholidays.com/countries/spain/canary-islands/2024
+# Includes regional holidays
+---
+- title: "New Year's Day"
+  date: 01/01/2024
+- title: "Epiphany"
+  date: 06/01/2024
+- title: "Holy Thursday"
+  date: 28/03/2024
+- title: "Good Friday"
+  date: 29/03/2024
+- title: "Labour day"
+  date: 01/05/2024
+- title: "Canary Islands Day"
+  date: 30/05/2024
+- title: "Assumption of the Virgin"
+  date: 15/08/2024
+- title: "Spanish National Holiday"
+  date: 12/10/2024
+- title: "All Saints' Day"
+  date: 01/11/2024
+- title: "Spanish Constitution Day"
+  date: 06/12/2024
+- title: "Day of the Immaculate Conception"
+  date: 08/12/2024
+- title: "Christmas Day"
+  date: 25/12/2024  

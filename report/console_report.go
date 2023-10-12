@@ -13,8 +13,8 @@ type consoleReport struct {
 
 const (
 	blankLine = ""
-	separator = " --------------------------------------------------------------------------------------------------------------------------------"
-	rowFormat = "| %-25s || %7v | %7v | %12v | %13v | %13v | %18v | %9v |"
+	separator = " ------------------------------------------------------------------------------------------------------------------------------------------"
+	rowFormat = "| %-35s || %7v | %7v | %12v | %13v | %13v | %18v | %9v |"
 )
 
 func NewConsoleReport(currency string) Writer {
@@ -36,7 +36,7 @@ func (r *consoleReport) GenerateReport(data *PrintableData) (string, error) {
 		fmt.Println(fmt.Sprintf("| Time Range: %s to %s", scheduleData.StartDate.Format(time.RFC822), scheduleData.EndDate.Format(time.RFC822)))
 		fmt.Println(separator)
 		fmt.Println(fmt.Sprintf(rowFormat, "USER", "WEEKDAY", "WEEKEND", "BANK HOLIDAY", "TOTAL WEEKDAY", "TOTAL WEEKEND", "TOTAL BANK HOLIDAY", "TOTAL"))
-		fmt.Println(fmt.Sprintf(rowFormat, "", "HOURS", "HOURS", "HOURS", "AMOUNT", "AMOUNT", "AMOUNT", "AMOUNT"))
+		fmt.Println(fmt.Sprintf(rowFormat, "EMAIL", "HOURS", "HOURS", "HOURS", "AMOUNT", "AMOUNT", "AMOUNT", "AMOUNT"))
 		fmt.Println(fmt.Sprintf(rowFormat, "", "DAYS", "DAYS", "DAYS", "", "", "", ""))
 		fmt.Println(separator)
 
@@ -53,13 +53,13 @@ func (r *consoleReport) GenerateReport(data *PrintableData) (string, error) {
 				fmt.Sprintf("%s%v", r.currency, userData.TotalAmountWeekendHours),
 				fmt.Sprintf("%s%v", r.currency, userData.TotalAmountBankHolidaysHours),
 				fmt.Sprintf("%s%v", r.currency, userData.TotalAmount)))
-			fmt.Println(fmt.Sprintf(rowFormat, "_________________________",
+			fmt.Println(fmt.Sprintf(rowFormat, userData.EmailAddress,
 				fmt.Sprintf("%.1f d", userData.NumWorkDays),
 				fmt.Sprintf("%.1f d", userData.NumWeekendDays),
 				fmt.Sprintf("%.1f d", userData.NumBankHolidaysDays),
 				"_____________", "_____________", "__________________", "_________"))
+			fmt.Println(separator)
 		}
-		fmt.Println(separator)
 	}
 
 	fmt.Println("")
@@ -67,7 +67,7 @@ func (r *consoleReport) GenerateReport(data *PrintableData) (string, error) {
 	fmt.Println("| Users summary")
 	fmt.Println(separator)
 	fmt.Println(fmt.Sprintf(rowFormat, "USER", "WEEKDAY", "WEEKEND", "BANK HOLIDAY", "TOTAL WEEKDAY", "TOTAL WEEKEND", "TOTAL BANK HOLIDAY", "TOTAL"))
-	fmt.Println(fmt.Sprintf(rowFormat, "", "HOURS", "HOURS", "HOURS", "AMOUNT", "AMOUNT", "AMOUNT", "AMOUNT"))
+	fmt.Println(fmt.Sprintf(rowFormat, "EMAIL", "HOURS", "HOURS", "HOURS", "AMOUNT", "AMOUNT", "AMOUNT", "AMOUNT"))
 	fmt.Println(fmt.Sprintf(rowFormat, "", "DAYS", "DAYS", "DAYS", "", "", "", ""))
 	fmt.Println(separator)
 
@@ -84,13 +84,13 @@ func (r *consoleReport) GenerateReport(data *PrintableData) (string, error) {
 			fmt.Sprintf("%s%v", r.currency, userData.TotalAmountWeekendHours),
 			fmt.Sprintf("%s%v", r.currency, userData.TotalAmountBankHolidaysHours),
 			fmt.Sprintf("%s%v", r.currency, userData.TotalAmount)))
-		fmt.Println(fmt.Sprintf(rowFormat, "_________________________",
+		fmt.Println(fmt.Sprintf(rowFormat, userData.EmailAddress,
 			fmt.Sprintf("%.1f d", userData.NumWorkDays),
 			fmt.Sprintf("%.1f d", userData.NumWeekendDays),
 			fmt.Sprintf("%.1f d", userData.NumBankHolidaysDays),
 			"_____________", "_____________", "__________________", "_________"))
+		fmt.Println(separator)
 	}
-	fmt.Println(separator)
 
 	return "", nil
 }

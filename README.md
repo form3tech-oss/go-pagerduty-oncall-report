@@ -4,12 +4,19 @@ Generate a report for the oncall rotation using PagerDuty API
 
 ## Installation
 
-Using homebrew
+Using source code
 
+Clone repository into your local machine
 ```bash
-brew tap form3tech-oss/tap
-brew install pd-report
+git clone git@github.com:form3tech-oss/go-pagerduty-oncall-report.git
 ```
+
+And run the make command to build the application
+```bash
+make build
+```
+
+It will generate the pd-report binary into your root folder
 
 ## Usage
 
@@ -127,7 +134,6 @@ schedulesToIgnore:
 
 - `report` command: no way to specify the output folder/filename for the pdf report
 - `calendars`:
-  - there are only 2018 and 2019 uk bank holiday calendars defined
   - there is no possibility to load external calendars (yet)
 
 

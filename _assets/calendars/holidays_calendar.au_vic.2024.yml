@@ -1,0 +1,24 @@
+# https://business.vic.gov.au/business-information/public-holidays/victorian-public-holidays-2023
+---
+- title: "New Year's Day"
+  date: 01/01/2024
+- title: "Australia Day"
+  date: 26/01/2024
+- title: "Labour Day"
+  date: 11/03/2024
+- title: "Good Friday"
+  date: 29/03/2024
+- title: "Easter Monday"
+  date: 01/04/2024
+- title: "Anzac Day"
+  date: 25/04/2024
+- title: "King's Birthday"
+  date: 10/06/2024
+#- title: "Friday before the AFL Grand Final"
+#  date: tbc
+- title: "Melbourne Cup"
+  date: 05/11/2024
+- title: "Christmas Day"
+  date: 25/12/2024
+- title: "Boxing Day"
+  date: 26/12/2024

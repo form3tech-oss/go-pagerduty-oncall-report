@@ -1,0 +1,35 @@
+# Madrid city holidays for 2023.
+# Includes local (City of Madrid) and community (Community of Madrid) holidays
+# https://www.comunidad.madrid/en/servicios/empleo/calendario-laboral-comunidad-madrid-municipios
+# take note of both 
+# - Labor holidays in the Community of Madrid for the year 2023
+# - Local holiday work calendar for the year 2023
+---
+- title: "Epiphany of the Lord"
+  date: 06/01/2023
+- title: "transfer of the festival of San José"
+  date: 20/03/2023
+- title: "Holy Thursday"
+  date: 06/04/2023
+- title: "Good Friday"
+  date: 07/04/2023
+- title: "Labor day"
+  date: 01/05/2023
+- title: "Festival of the Community of Madrid"
+  date: 02/05/2023
+- title: "San Isidro Labrador"
+  date: 15/05/2023
+- title: "Assumption of the Virgin"
+  date: 15/08/2023
+- title: "National Holiday of Spain"
+  date: 12/10/2023
+- title: "All Saints"
+  date: 01/11/2023
+- title: "Nuestra Señora de La Almudena"
+  date: 09/11/2023
+- title: "Spanish Constitution Day"
+  date: 06/12/2023
+- title: "Day of the Immaculate Conception"
+  date: 08/12/2023
+- title: "Christmas day"
+  date: 25/12/2023

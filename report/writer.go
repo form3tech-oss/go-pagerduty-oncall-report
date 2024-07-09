@@ -21,6 +21,7 @@ type ScheduleData struct {
 
 type ScheduleUser struct {
 	Name                         string
+	EmailAddress                 string
 	NumWorkHours                 float32
 	NumWorkDays                  float32
 	TotalAmountWorkHours         float32

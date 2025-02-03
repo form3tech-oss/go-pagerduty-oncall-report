@@ -1,0 +1,34 @@
+# City of Madrid holidays for 2025
+# https://www.officeholidays.com/countries/spain/madrid/2025
+---
+- title: "New Year's Day"
+  date: 01/01/2025
+- title: "Epiphany of the Lord"
+  date: 06/01/2025
+- title: "Good Friday"
+  date: 18/04/2025
+- title: "Easter Monday"
+  date: 21/04/2025
+- title: "Labour day"
+  date: 01/05/2025
+- title: "Community Festival of Madrid"
+  date: 02/05/2025
+- title: "Feast of St. Isidro"
+  date: 15/05/2025
+- title: "St. James' Day"
+  date: 25/07/2025
+- title: "Assumption of the Virgin"
+  date: 15/08/2025
+- title: "Hispanic Day"
+  date: 12/10/2025
+- title: "All Saints' Day"
+  date: 01/11/2025
+- title: "Our Lady of the Almudena" # City of Madrid only
+  date: 10/11/2025
+- title: "Constitution Day"
+  date: 06/12/2025
+- title: "Day of the Immaculate Conception"
+  date: 08/12/2025
+- title: "Christmas Day"
+  date: 25/12/2025
+  

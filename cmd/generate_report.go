@@ -487,7 +487,7 @@ func updateDataForDate(calendar *configuration.BHCalendar, data *report.Schedule
 				return
 			}
 
-			if date.Hour() < excludedHours.ExcludedStartsAt && date.Hour() >= excludedHours.ExcludedEndsAt {
+			if date.Hour() < excludedHours.ExcludedStartsAt || date.Hour() >= excludedHours.ExcludedEndsAt {
 				//fmt.Printf("%s - Month: %d, time: %v -- bank holiday non excluded hours\n", data.Name, currentMonth, date)
 				data.NumBankHolidaysHours += 0.5
 			}
@@ -499,7 +499,7 @@ func updateDataForDate(calendar *configuration.BHCalendar, data *report.Schedule
 				return
 			}
 
-			if date.Hour() < excludedHours.ExcludedStartsAt && date.Hour() >= excludedHours.ExcludedEndsAt {
+			if date.Hour() < excludedHours.ExcludedStartsAt || date.Hour() >= excludedHours.ExcludedEndsAt {
 				//fmt.Printf("%s - Month: %d, time: %v -- weekend non excluded hours\n", data.Name, currentMonth, date)
 				data.NumWeekendHours += 0.5
 			}

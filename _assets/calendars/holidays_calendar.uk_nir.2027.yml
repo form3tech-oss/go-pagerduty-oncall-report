@@ -1,0 +1,22 @@
+# https://www.gov.uk/bank-holidays#northern-ireland
+---
+- title: "New Year’s Day"
+  date: 01/01/2027
+- title: "St Patrick’s Day"
+  date: 17/03/2027
+- title: "Good Friday"
+  date: 26/03/2027
+- title: "Easter Monday"
+  date: 29/03/2027
+- title: "Early May"
+  date: 03/05/2027
+- title: "Spring"
+  date: 31/05/2027
+- title: "Battle of the Boyne"
+  date: 12/07/2027
+- title: "Summer"
+  date: 30/08/2027
+- title: "Christmas Day (substitute day)"
+  date: 27/12/2027
+- title: "Boxing Day (substitute day)"
+  date: 28/12/2027

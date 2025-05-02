@@ -1,0 +1,18 @@
+# https://www.gov.uk/bank-holidays
+---
+- title: "New Year’s Day"
+  date: 01/01/2026
+- title: "Good Friday"
+  date: 03/04/2026
+- title: "Easter Monday"
+  date: 06/04/2026
+- title: "Early May"
+  date: 04/05/2026
+- title: "Spring"
+  date: 25/05/2026
+- title: "Summer"
+  date: 31/08/2026
+- title: "Christmas Day"
+  date: 25/12/2026
+- title: "Boxing Day (substitute day)"
+  date: 28/12/2026

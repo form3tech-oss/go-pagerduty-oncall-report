@@ -1,4 +1,4 @@
-# according to https://publicholidays.pt/2025-dates/
+# https://www.timeanddate.com/holidays/portugal/2025?hol=1
 ---
 - title: "New Year's Day"
   date: 01/01/2025
@@ -6,7 +6,7 @@
   date: 18/04/2025
 - title: "Easter Sunday"
   date: 20/04/2025
-- title: "Liberation Day"
+- title: "Liberty Day"
   date: 25/04/2025
 - title: "Labour Day"
   date: 01/05/2025
@@ -14,7 +14,7 @@
   date: 10/06/2025
 - title: "Corpus Christi"
   date: 19/06/2025
-- title: "Assumption Day"
+- title: "Assumption of Mary"
   date: 15/08/2025
 - title: "Republic Day"
   date: 05/10/2025

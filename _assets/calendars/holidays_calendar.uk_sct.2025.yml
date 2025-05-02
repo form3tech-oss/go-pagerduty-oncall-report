@@ -1,0 +1,22 @@
+# https://www.gov.uk/bank-holidays#scotland
+---
+- title: "New Year’s Day"
+  date: 01/01/2025
+- title: "2nd January"
+  date: 02/01/2025
+- title: "Good Friday"
+  date: 18/04/2025
+- title: "Easter Monday"
+  date: 21/04/2025
+- title: "Early May"
+  date: 05/05/2025
+- title: "Spring"
+  date: 26/05/2025
+- title: "Summer"
+  date: 25/08/2025
+- title: "St Andrew's Day (substitute day)"
+  date: 01/12/2025
+- title: "Christmas Day"
+  date: 25/12/2025
+- title: "Boxing Day"
+  date: 26/12/2025

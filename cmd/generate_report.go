@@ -379,11 +379,18 @@ func (pd *pagerDutyClient) generateScheduleData(scheduleInfo *api.ScheduleInfo, 
 				return nil, fmt.Errorf("aborted due to failed to convert to user local timezone: %w", err)
 			}
 
+			hourIncrement := float32(Config.RotationInfo.CheckRotationChangeEvery) / 60.0
 			for currentLocalDate.Before(period.End) {
-				updateDataForDate(&userCalendar, scheduleUserData, currentMonth, currentLocalDate)
+				updateDataForDate(&userCalendar, scheduleUserData, currentMonth, currentLocalDate, hourIncrement)
 				currentLocalDate = currentLocalDate.Add(time.Minute * time.Duration(Config.RotationInfo.CheckRotationChangeEvery))
 			}
 		}
+
+		// Round accumulated hours to 2 decimal places to eliminate floating-point
+		// noise from non-integer minute intervals (e.g. 5 min = 0.0833h per check)
+		scheduleUserData.NumWorkHours = float32(int(scheduleUserData.NumWorkHours*100+0.5)) / 100
+		scheduleUserData.NumWeekendHours = float32(int(scheduleUserData.NumWeekendHours*100+0.5)) / 100
+		scheduleUserData.NumBankHolidaysHours = float32(int(scheduleUserData.NumBankHolidaysHours*100+0.5)) / 100
 
 		scheduleUserData.NumWorkDays = scheduleUserData.NumWorkHours / float32(pricesInfo.HoursWeekDay)
 		scheduleUserData.NumWeekendDays = scheduleUserData.NumWeekendHours / float32(pricesInfo.HoursWeekendDay)
@@ -471,49 +478,49 @@ func (pd *pagerDutyClient) getUserEmail(userID string) (string, error) {
 	return email, nil
 }
 
-func updateDataForDate(calendar *configuration.BHCalendar, data *report.ScheduleUser, currentMonth time.Month, date time.Time) {
+func updateDataForDate(calendar *configuration.BHCalendar, data *report.ScheduleUser, currentMonth time.Month, date time.Time, hourIncrement float32) {
 	if date.Hour() < Config.RotationInfo.DailyRotationStartsAt {
 		newDate := date.Add(time.Hour * time.Duration(-(date.Hour() + 1))) // move to yesterday night to determine which kind of day it was
 		// if yesterday night was last month, ignore the date
 		if newDate.Month() == currentMonth {
-			updateDataForDate(calendar, data, currentMonth, newDate)
+			updateDataForDate(calendar, data, currentMonth, newDate, hourIncrement)
 		}
 	} else {
 		if calendar.IsDateBankHoliday(date) {
 			excludedHours := Config.FindRotationExcludedHoursByDay("bankholiday")
 			if excludedHours == nil {
 				//fmt.Printf("%s - Month: %d, time: %v -- bank holiday\n", data.Name, currentMonth, date)
-				data.NumBankHolidaysHours += 0.5
+				data.NumBankHolidaysHours += hourIncrement
 				return
 			}
 
 			if date.Hour() < excludedHours.ExcludedStartsAt || date.Hour() >= excludedHours.ExcludedEndsAt {
 				//fmt.Printf("%s - Month: %d, time: %v -- bank holiday non excluded hours\n", data.Name, currentMonth, date)
-				data.NumBankHolidaysHours += 0.5
+				data.NumBankHolidaysHours += hourIncrement
 			}
 		} else if calendar.IsWeekend(date) {
 			excludedHours := Config.FindRotationExcludedHoursByDay("weekend")
 			if excludedHours == nil {
 				//fmt.Printf("%s - Month: %d, time: %v -- weekend\n", data.Name, currentMonth, date)
-				data.NumWeekendHours += 0.5
+				data.NumWeekendHours += hourIncrement
 				return
 			}
 
 			if date.Hour() < excludedHours.ExcludedStartsAt || date.Hour() >= excludedHours.ExcludedEndsAt {
 				//fmt.Printf("%s - Month: %d, time: %v -- weekend non excluded hours\n", data.Name, currentMonth, date)
-				data.NumWeekendHours += 0.5
+				data.NumWeekendHours += hourIncrement
 			}
 		} else {
 			excludedHours := Config.FindRotationExcludedHoursByDay("weekday")
 			if excludedHours == nil {
 				//fmt.Printf("%s - Month: %d, time: %v -- weekday\n", data.Name, currentMonth, date)
-				data.NumWorkHours += 0.5
+				data.NumWorkHours += hourIncrement
 				return
 			}
 
 			if date.Hour() < excludedHours.ExcludedStartsAt || date.Hour() >= excludedHours.ExcludedEndsAt {
 				//fmt.Printf("%s - Month: %d, time: %v -- weekday non excluded hours\n", data.Name, currentMonth, date)
-				data.NumWorkHours += 0.5
+				data.NumWorkHours += hourIncrement
 			}
 		}
 	}

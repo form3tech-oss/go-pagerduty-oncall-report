@@ -99,7 +99,7 @@ func (r *pdfReport) GenerateReport(data *PrintableData) (string, error) {
 					tr(fmt.Sprintf("%s%v", r.currency, userData.TotalAmountWorkHours)),
 					tr(fmt.Sprintf("%s%v", r.currency, userData.TotalAmountWeekendHours)),
 					tr(fmt.Sprintf("%s%v", r.currency, userData.TotalAmountBankHolidaysHours)),
-					tr(fmt.Sprintf("%s%v", r.currency, userData.TotalAmount))),
+					tr(fmt.Sprintf("%s%.2f", r.currency, userData.TotalAmount))),
 				"", 0, "L", false, 0, "")
 			pdf.Ln(3)
 			pdf.CellFormat(0, 5,

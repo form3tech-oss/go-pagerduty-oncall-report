@@ -1,0 +1,28 @@
+# https://www.boe.es/diario_boe/txt.php?id=BOE-A-2026-21254
+# https://www.bocm.es/boletin/CM_Orden_BOCM/2026/10/01/BOCM-20261001-19.PDF
+# Comunidad de Madrid CCAA holidays (municipal locals excluded until published)
+---
+- title: "New Year's Day"
+  date: 01/01/2027
+- title: "Epiphany"
+  date: 06/01/2027
+- title: "San José"
+  date: 19/03/2027
+- title: "Holy Thursday"
+  date: 25/03/2027
+- title: "Good Friday"
+  date: 26/03/2027
+- title: "Labour day"
+  date: 01/05/2027
+- title: "Assumption Day (substitute day)"
+  date: 16/08/2027
+- title: "Hispanic Day"
+  date: 12/10/2027
+- title: "All Saints' Day"
+  date: 01/11/2027
+- title: "Constitution Day"
+  date: 06/12/2027
+- title: "Day of the Immaculate Conception"
+  date: 08/12/2027
+- title: "Christmas Day"
+  date: 25/12/2027

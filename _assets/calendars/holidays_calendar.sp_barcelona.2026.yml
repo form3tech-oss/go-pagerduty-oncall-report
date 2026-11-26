@@ -10,8 +10,8 @@
   date: 06/04/2026
 - title: "Labour day"
   date: 01/05/2026
-- title: "Pentecost"
-  date: 24/05/2026
+- title: "Whit Monday"
+  date: 25/05/2026
 - title: "Sant Joan Midsummer solstice"
   date: 24/06/2026
 - title: "Assumption of the Virgin"
@@ -20,6 +20,8 @@
   date: 11/09/2026
 - title: "La Mercè"
   date: 24/09/2026
+- title: "Hispanic Day"
+  date: 12/10/2026
 - title: "All Saints' Day"
   date: 01/11/2026
 - title: "Spanish Constitution Day"

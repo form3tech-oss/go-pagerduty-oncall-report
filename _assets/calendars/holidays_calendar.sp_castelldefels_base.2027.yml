@@ -1,4 +1,5 @@
-# https://calendario-laboral.com/2027/cataluna
+# https://www.boe.es/diario_boe/txt.php?id=BOE-A-2026-21254
+# Catalonia autonomous-community holidays (local municipal days excluded until published)
 ---
 - title: "New Year's Day"
   date: 01/01/2027
@@ -18,6 +19,10 @@
   date: 11/09/2027
 - title: "Spanish National Day"
   date: 12/10/2027
+- title: "All Saints' Day"
+  date: 01/11/2027
+- title: "Spanish Constitution Day"
+  date: 06/12/2027
 - title: "Day of the Immaculate Conception"
   date: 08/12/2027
 - title: "Christmas Day"

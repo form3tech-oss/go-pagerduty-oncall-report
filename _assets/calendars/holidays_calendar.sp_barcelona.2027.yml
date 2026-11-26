@@ -1,3 +1,4 @@
+# https://www.boe.es/diario_boe/txt.php?id=BOE-A-2026-21254
 # https://irbarcelona.org/information/public-holidays-calendar-barcelona/
 ---
 - title: "New Year's Day"
@@ -10,8 +11,8 @@
   date: 29/03/2027
 - title: "Labour day"
   date: 01/05/2027
-- title: "Pentecost"
-  date: 16/05/2027
+- title: "Whit Monday"
+  date: 17/05/2027
 - title: "Sant Joan Midsummer solstice"
   date: 24/06/2027
 - title: "Assumption of the Virgin"
@@ -20,6 +21,8 @@
   date: 11/09/2027
 - title: "La Mercè"
   date: 24/09/2027
+- title: "Hispanic Day"
+  date: 12/10/2027
 - title: "All Saints' Day"
   date: 01/11/2027
 - title: "Spanish Constitution Day"

@@ -1,23 +1,20 @@
-# https://absentify.com/public-holidays/spain/andalusia
+# https://www.boe.es/diario_boe/txt.php?id=BOE-A-2026-21254
+# Andalucía autonomous-community holidays (Estepona municipal locals excluded until published)
 ---
 - title: "New Year's Day"
   date: 01/01/2027
 - title: "Epiphany"
   date: 06/01/2027
 - title: "Andalusian Day"
-  date: 28/02/2027
+  date: 01/03/2027
 - title: "Maundy Thursday"
   date: 25/03/2027
 - title: "Good Friday"
   date: 26/03/2027
 - title: "Labor Day"
   date: 01/05/2027
-- title: "Día de San Isidro Labrador"
-  date: 15/05/2027
-- title: "Virgen del Carmen"
-  date: 16/07/2027
-- title: "Assumption of Mary"
-  date: 15/08/2027
+- title: "Assumption of Mary (substitute day)"
+  date: 16/08/2027
 - title: "Hispanic Heritage Day"
   date: 12/10/2027
 - title: "All Saints' Day"

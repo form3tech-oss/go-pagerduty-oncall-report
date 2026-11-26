@@ -2,6 +2,8 @@
 ---
 - title: "New Year's Day"
   date: 01/01/2028
+- title: "New Year's Day (substitute day)"
+  date: 03/01/2028
 - title: "Liberation Day"
   date: 03/03/2028
 - title: "Orthodox Good Friday"
@@ -30,3 +32,5 @@
   date: 25/12/2028
 - title: "2nd Day of Christmas"
   date: 26/12/2028
+- title: "Christmas Holiday"
+  date: 27/12/2028

@@ -1,0 +1,20 @@
+# https://www.gov.uk/bank-holidays#scotland
+---
+- title: "New Year’s Day (substitute day)"
+  date: 03/01/2028
+- title: "2nd January (substitute day)"
+  date: 04/01/2028
+- title: "Good Friday"
+  date: 14/04/2028
+- title: "Early May"
+  date: 01/05/2028
+- title: "Spring"
+  date: 29/05/2028
+- title: "Summer"
+  date: 07/08/2028
+- title: "St Andrew's Day"
+  date: 30/11/2028
+- title: "Christmas Day"
+  date: 25/12/2028
+- title: "Boxing Day"
+  date: 26/12/2028
